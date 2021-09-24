@@ -7,4 +7,4 @@ app.static('/favicon.ico', './static/favicon.ico')
 
 app.blueprint(blueprint)
 app.blueprint(base_bp)
-app.config.update({'aes_key': 'i7!4cH3!IjgE8Rf0'})
+# app.config.update({'aes_key': 'i7!4cH3!IjgE8Rf0'})

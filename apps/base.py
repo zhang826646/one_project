@@ -11,11 +11,11 @@ from asyncio import CancelledError
 # from apps.tasks.celery import celery_app
 # import functools
 # from sanic.response import json, HTTPResponse, StreamingHTTPResponse
-# from common.libs.comm import obj2dict, inc_count, get_ipaddr
-# from sanic.handlers import ErrorHandler
-# from sanic.exceptions import NotFound, MethodNotSupported, InvalidUsage
-# from common.exceptions import LeisuException, ApiCode, InvalidRequestError, LoginFrequentError, TooFrequentError
-# from sanic.request import Request
+from common.libs.comm import obj2dict, inc_count, get_ipaddr
+from sanic.handlers import ErrorHandler
+from sanic.exceptions import NotFound, MethodNotSupported, InvalidUsage
+from common.exceptions import LeisuException, ApiCode, InvalidRequestError, LoginFrequentError, TooFrequentError
+from sanic.request import Request
 # from common.libs.crypto import aes_encrypt, caesar_encrypt
 import traceback
 
@@ -35,56 +35,56 @@ RATE_MODIFIER_MAP = {
 }
 
 
-# class CommonErrorHandler(ErrorHandler):
-#     """
-#     全局异常处理类
-#     """
-#     def default(self, request, exception):
-#         """
-#         :param Request request:
-#         :param exception:
-#         :return:
-#         """
-#         if isinstance(exception, (NotFound, MethodNotSupported)):
-#             # 404、405异常都返回404
-#             # return response_format(code=404, data=request.url, http_code=404)
-#             return response_format(code=404, msg='访问资源不存在，请更新最新版本', http_code=404)
-#         if isinstance(exception, (InvalidUsage,)):
-#             return response_format(code=ApiCode.ILLEGAL_REQ, msg='请求体解析错误')
-#         env = request.app.config.get('env')
+class CommonErrorHandler(ErrorHandler):
+    """
+    全局异常处理类
+    """
+    def default(self, request, exception):
+        """
+        :param Request request:
+        :param exception:
+        :return:
+        """
+        if isinstance(exception, (NotFound, MethodNotSupported)):
+            # 404、405异常都返回404
+            # return response_format(code=404, data=request.url, http_code=404)
+            return response_format(code=404, msg='访问资源不存在，请更新最新版本', http_code=404)
+        if isinstance(exception, (InvalidUsage,)):
+            return response_format(code=ApiCode.ILLEGAL_REQ, msg='请求体解析错误')
+        env = request.app.config.get('env')
+
+        if isinstance(exception, LeisuException):
+            if env != 'prod' or isinstance(exception, (InvalidRequestError, LoginFrequentError)):
+                logger.warning(traceback.format_exc().split('\n')[-4].strip())
+                logger.warning(f'exc: {exception.msg}')
+                logger.warning(f'path: [{request.method}] {request.path}')
+                logger.warning(f'headers: {dict(request.headers)}')
+                logger.warning(f'args: {request.args}')
+                logger.warning(f'body: {request.body.decode()}')
+            # 自定义异常
+            response = {'code': exception.code, 'msg': exception.msg}
+            if exception.data:
+                response['data'] = exception.data
+            return response_format(code=exception.code, data=exception.data, msg=exception.msg)
+        else:
+            logger.error(f'path: [{request.method}] {request.path}')
+            logger.error(f'headers: {dict(request.headers)}')
+            logger.error(f'args: {request.args}')
+            logger.error(f'body: {request.body.decode()}')
+            logger.error(f'exception: {exception}')
+            logger.error(f'\n{traceback.format_exc()}')
+            # sanic在处理超时的时候不会走中间件 需要在这里释放DB资源
+            request.app.leisu.remove_mysql_session()
+            if env == 'prod':
+                return response_format(code=ApiCode.UNKNOWN_ERR, msg='未知错误', http_code=500)
+            # 开发环境下其他异常默认让sanic自身处理
+            return super().default(request, exception)
 #
-#         if isinstance(exception, LeisuException):
-#             if env != 'prod' or isinstance(exception, (InvalidRequestError, LoginFrequentError)):
-#                 logger.warning(traceback.format_exc().split('\n')[-4].strip())
-#                 logger.warning(f'exc: {exception.msg}')
-#                 logger.warning(f'path: [{request.method}] {request.path}')
-#                 logger.warning(f'headers: {dict(request.headers)}')
-#                 logger.warning(f'args: {request.args}')
-#                 logger.warning(f'body: {request.body.decode()}')
-#             # 自定义异常
-#             response = {'code': exception.code, 'msg': exception.msg}
-#             if exception.data:
-#                 response['data'] = exception.data
-#             return response_format(code=exception.code, data=exception.data, msg=exception.msg)
-#         else:
-#             logger.error(f'path: [{request.method}] {request.path}')
-#             logger.error(f'headers: {dict(request.headers)}')
-#             logger.error(f'args: {request.args}')
-#             logger.error(f'body: {request.body.decode()}')
-#             logger.error(f'exception: {exception}')
-#             logger.error(f'\n{traceback.format_exc()}')
-#             # sanic在处理超时的时候不会走中间件 需要在这里释放DB资源
-#             request.app.leisu.remove_mysql_session()
-#             if env == 'prod':
-#                 return response_format(code=ApiCode.UNKNOWN_ERR, msg='未知错误', http_code=500)
-#             # 开发环境下其他异常默认让sanic自身处理
-#             return super().default(request, exception)
 #
-#
-# class BaseRequest(Request):
-#     def __init__(self, *args, **kwargs):
-#         super(BaseRequest, self).__init__(*args, **kwargs)
-#         self.valid_data = {}
+class BaseRequest(Request):
+    def __init__(self, *args, **kwargs):
+        super(BaseRequest, self).__init__(*args, **kwargs)
+        self.valid_data = {}
 #
 #
 # class CacheBlueprint(Blueprint):
@@ -136,8 +136,8 @@ RATE_MODIFIER_MAP = {
 class App(Sanic):
 
     def __init__(self, *args, **kwargs):
-        # kwargs.setdefault('request_class', BaseRequest)
-        # kwargs.setdefault('error_handler', CommonErrorHandler())
+        kwargs.setdefault('request_class', BaseRequest)
+        kwargs.setdefault('error_handler', CommonErrorHandler())
         super(App, self).__init__(*args, **kwargs)
         # self.register_listener(before_server_start, 'before_server_start')
         # self.register_listener(after_server_stop, 'after_server_stop')
@@ -262,36 +262,36 @@ class App(Sanic):
 #             write_callback(response)
 #
 #
-# def response_format(code=0, data=None, msg="", http_code=200, headers=None, aes_key=None, caesar=None):
-#     if data is None:
-#         data = data
-#     elif isinstance(data, (str, int, float, list, dict, tuple)):
-#         data = data
-#     else:
-#         data = obj2dict(data)
-#     if aes_key and caesar:
-#         raise ValueError('caesar and aes can not be set both.')
-#     if data:
-#         if aes_key:
-#             code = 1  # 1表示使用了AES加密
-#             data = aes_encrypt(ujson.dumps(data, ensure_ascii=False), aes_key)
-#         if caesar:
-#             offset = random.randint(5, 20)
-#             code = 100 + offset
-#             data = caesar_encrypt(ujson.dumps(data, ensure_ascii=False), offset=offset)
-#     result = {'code': code, 'data': None, 'msg': msg}
-#     if code == ApiCode.ALERT_PROMPT:
-#         # APP弹窗
-#         result['alert'] = data
-#     else:
-#         result['data'] = data
-#     if headers:
-#         if 'Cache-Control' in headers:
-#             try:
-#                 result['age'] = int(headers['Cache-Control'].split('=')[1])
-#             except (KeyError, ValueError, IndexError):
-#                 logger.warning(traceback.format_exc())
-#     return json(result, ensure_ascii=False,  status=http_code, headers=headers)
+def response_format(code=0, data=None, msg="", http_code=200, headers=None, aes_key=None, caesar=None):
+    if data is None:
+        data = data
+    elif isinstance(data, (str, int, float, list, dict, tuple)):
+        data = data
+    else:
+        data = obj2dict(data)
+    if aes_key and caesar:
+        raise ValueError('caesar and aes can not be set both.')
+    if data:
+        if aes_key:
+            code = 1  # 1表示使用了AES加密
+            # data = aes_encrypt(ujson.dumps(data, ensure_ascii=False), aes_key)
+        if caesar:
+            offset = random.randint(5, 20)
+            code = 100 + offset
+            # data = caesar_encrypt(ujson.dumps(data, ensure_ascii=False), offset=offset)
+    result = {'code': code, 'data': None, 'msg': msg}
+    if code == ApiCode.ALERT_PROMPT:
+        # APP弹窗
+        result['alert'] = data
+    else:
+        result['data'] = data
+    if headers:
+        if 'Cache-Control' in headers:
+            try:
+                result['age'] = int(headers['Cache-Control'].split('=')[1])
+            except (KeyError, ValueError, IndexError):
+                logger.warning(traceback.format_exc())
+    return json(result, ensure_ascii=False,  status=http_code, headers=headers)
 #
 #
 # def formatter(headers=None, aes=False, env_exclude=('dev', 'local'), caesar=False, hack_version=None):
