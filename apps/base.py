@@ -10,7 +10,7 @@ from asyncio import CancelledError
 # from apps.hooks import StartHook
 # from apps.tasks.celery import celery_app
 # import functools
-# from sanic.response import json, HTTPResponse, StreamingHTTPResponse
+from sanic.response import json, HTTPResponse, StreamingHTTPResponse
 from common.libs.comm import obj2dict, inc_count, get_ipaddr
 from sanic.handlers import ErrorHandler
 from sanic.exceptions import NotFound, MethodNotSupported, InvalidUsage
@@ -121,7 +121,7 @@ class BaseRequest(Request):
 #     _app.leisu = StartHook(_app, _loop)
 #     celery_app.conf.update(_app.config)
 #     _app.leisu.celery = celery_app
-#
+
 #
 # async def after_server_stop(_app, _loop):
 #     logger.info('Sanic APP关闭后钩子...')
@@ -131,8 +131,8 @@ class BaseRequest(Request):
 #
 # async def response_middleware(request, response):
 #     request.app.leisu.remove_mysql_session()
-#
-#
+
+
 class App(Sanic):
 
     def __init__(self, *args, **kwargs):
@@ -142,125 +142,125 @@ class App(Sanic):
         # self.register_listener(before_server_start, 'before_server_start')
         # self.register_listener(after_server_stop, 'after_server_stop')
         # self.register_middleware(response_middleware, 'response')
-#
-#     async def handle_request(self, request, write_callback, stream_callback):
-#         """Take a request from the HTTP Server and return a response object
-#         to be sent back The HTTP Server only expects a response object, so
-#         exception handling must be done here
-#
-#         :param request: HTTP Request object
-#         :param write_callback: Synchronous response function to be
-#             called with the response as the only argument
-#         :param stream_callback: Coroutine that handles streaming a
-#             StreamingHTTPResponse if produced by the handler.
-#
-#         :return: Nothing
-#         """
-#         # Define `response` var here to remove warnings about
-#         # allocation before assignment below.
-#         response = None
-#         cancelled = False
-#         try:
-#             # -------------------------------------------- #
-#             # Request Middleware
-#             # -------------------------------------------- #
-#             response = await self._run_request_middleware(request)
-#             # No middleware results
-#             if not response:
-#                 # -------------------------------------------- #
-#                 # Execute Handler
-#                 # -------------------------------------------- #
-#
-#                 # Fetch handler from router
-#                 handler, args, kwargs, uri = self.router.get(request)
-#
-#                 request.uri_template = uri
-#                 if handler is None:
-#                     raise ServerError(
-#                         (
-#                             "'None' was returned while requesting a "
-#                             "handler from the router"
-#                         )
-#                     )
-#                 else:
-#                     if not getattr(handler, "__blueprintname__", False):
-#                         request.endpoint = self._build_endpoint_name(
-#                             handler.__name__
-#                         )
-#                     else:
-#                         request.endpoint = self._build_endpoint_name(
-#                             getattr(handler, "__blueprintname__", ""),
-#                             handler.__name__,
-#                         )
-#
-#                 # Run response handler
-#                 response = handler(request, *args, **kwargs)
-#                 if isawaitable(response):
-#                     response = await response
-#         except CancelledError:
-#             # If response handler times out, the server handles the error
-#             # and cancels the handle_request job.
-#             # In this case, the transport is already closed and we cannot
-#             # issue a response.
-#             response = None
-#             cancelled = True
-#         except Exception as e:
-#             # -------------------------------------------- #
-#             # Response Generation Failed
-#             # -------------------------------------------- #
-#             try:
-#                 response = self.error_handler.response(request, e)
-#                 if isawaitable(response):
-#                     response = await response
-#             except Exception as e:
-#                 if isinstance(e, SanicException):
-#                     response = self.error_handler.default(
-#                         request=request, exception=e
-#                     )
-#                 elif self.debug:
-#                     response = HTTPResponse(
-#                         "Error while handling error: {}\nStack: {}".format(
-#                             e, traceback.format_exc()
-#                         ),
-#                         status=500,
-#                     )
-#                 else:
-#                     response = HTTPResponse(
-#                         "An error occurred while handling an error", status=500
-#                     )
-#         finally:
-#             # -------------------------------------------- #
-#             # Response Middleware
-#             # -------------------------------------------- #
-#             # Don't run response middleware if response is None
-#             # HACK remove db session
-#             request.app.leisu.remove_mysql_session()
-#             if response is not None:
-#                 try:
-#                     response = await self._run_response_middleware(
-#                         request, response
-#                     )
-#                 except CancelledError:
-#                     # Response middleware can timeout too, as above.
-#                     response = None
-#                     cancelled = True
-#                 except BaseException:
-#                     error_logger.exception(
-#                         "Exception occurred in one of response "
-#                         "middleware handlers"
-#                     )
-#             if cancelled:
-#                 raise CancelledError()
-#         # pass the response to the correct callback
-#         if write_callback is None or isinstance(
-#                 response, StreamingHTTPResponse
-#         ):
-#
-#             if stream_callback:
-#                 await stream_callback(response)
-#         else:
-#             write_callback(response)
-#
+
+    # async def handle_request(self, request, write_callback, stream_callback):
+    #     """Take a request from the HTTP Server and return a response object
+    #     to be sent back The HTTP Server only expects a response object, so
+    #     exception handling must be done here
+    #
+    #     :param request: HTTP Request object
+    #     :param write_callback: Synchronous response function to be
+    #         called with the response as the only argument
+    #     :param stream_callback: Coroutine that handles streaming a
+    #         StreamingHTTPResponse if produced by the handler.
+    #
+    #     :return: Nothing
+    #     """
+    #     # Define `response` var here to remove warnings about
+    #     # allocation before assignment below.
+    #     response = None
+    #     cancelled = False
+    #     try:
+    #         # -------------------------------------------- #
+    #         # Request Middleware
+    #         # -------------------------------------------- #
+    #         response = await self._run_request_middleware(request)
+    #         # No middleware results
+    #         if not response:
+    #             # -------------------------------------------- #
+    #             # Execute Handler
+    #             # -------------------------------------------- #
+    #
+    #             # Fetch handler from router
+    #             handler, args, kwargs, uri = self.router.get(request)
+    #
+    #             request.uri_template = uri
+    #             if handler is None:
+    #                 raise ServerError(
+    #                     (
+    #                         "'None' was returned while requesting a "
+    #                         "handler from the router"
+    #                     )
+    #                 )
+    #             else:
+    #                 if not getattr(handler, "__blueprintname__", False):
+    #                     request.endpoint = self._build_endpoint_name(
+    #                         handler.__name__
+    #                     )
+    #                 else:
+    #                     request.endpoint = self._build_endpoint_name(
+    #                         getattr(handler, "__blueprintname__", ""),
+    #                         handler.__name__,
+    #                     )
+    #
+    #             # Run response handler
+    #             response = handler(request, *args, **kwargs)
+    #             if isawaitable(response):
+    #                 response = await response
+    #     except CancelledError:
+    #         # If response handler times out, the server handles the error
+    #         # and cancels the handle_request job.
+    #         # In this case, the transport is already closed and we cannot
+    #         # issue a response.
+    #         response = None
+    #         cancelled = True
+    #     except Exception as e:
+    #         # -------------------------------------------- #
+    #         # Response Generation Failed
+    #         # -------------------------------------------- #
+    #         try:
+    #             response = self.error_handler.response(request, e)
+    #             if isawaitable(response):
+    #                 response = await response
+    #         except Exception as e:
+    #             if isinstance(e, SanicException):
+    #                 response = self.error_handler.default(
+    #                     request=request, exception=e
+    #                 )
+    #             elif self.debug:
+    #                 response = HTTPResponse(
+    #                     "Error while handling error: {}\nStack: {}".format(
+    #                         e, traceback.format_exc()
+    #                     ),
+    #                     status=500,
+    #                 )
+    #             else:
+    #                 response = HTTPResponse(
+    #                     "An error occurred while handling an error", status=500
+    #                 )
+    #     finally:
+    #         # -------------------------------------------- #
+    #         # Response Middleware
+    #         # -------------------------------------------- #
+    #         # Don't run response middleware if response is None
+    #         # HACK remove db session
+    #         request.app.leisu.remove_mysql_session()
+    #         if response is not None:
+    #             try:
+    #                 response = await self._run_response_middleware(
+    #                     request, response
+    #                 )
+    #             except CancelledError:
+    #                 # Response middleware can timeout too, as above.
+    #                 response = None
+    #                 cancelled = True
+    #             except BaseException:
+    #                 error_logger.exception(
+    #                     "Exception occurred in one of response "
+    #                     "middleware handlers"
+    #                 )
+    #         if cancelled:
+    #             raise CancelledError()
+    #     # pass the response to the correct callback
+    #     if write_callback is None or isinstance(
+    #             response, StreamingHTTPResponse
+    #     ):
+    #
+    #         if stream_callback:
+    #             await stream_callback(response)
+    #     else:
+    #         write_callback(response)
+
 #
 def response_format(code=0, data=None, msg="", http_code=200, headers=None, aes_key=None, caesar=None):
     if data is None:

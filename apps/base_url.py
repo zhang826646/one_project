@@ -16,31 +16,32 @@ base_bp = Blueprint(name='default', url_prefix='/', strict_slashes=True)
 async def app_status(request):
     return json({
         # 'app_config': request.app.config,
-        'app_leisu' : request.app.leisu.status()
+        'app_config': {'qwe':"qqqqqqqq"},
+        # 'app_leisu' : request.app.leisu.status()
         # 'app_router': request.app.router.routes_all,
     })
 
 
-@doc.summary('APP Debug')
-@base_bp.route('/debug', strict_slashes=True)
-async def app_debug(request):
-    return json({
-        'cache'          : CACHE_CONTROL_SETTINGS,
-        'method'         : request.method,
-        'url'            : request.url,
-        'query_string'   : request.query_string,
-        'query_args'     : request.query_args,
-        'form'           : request.form,
-        'body'           : request.body,
-        # 'ip'             : get_ipaddr(request),
-        'request.ip'     : request.ip,
-        'X-Real-Ip'      : request.headers.get('X-Real-Ip'),
-        'X-Forwarded-For': request.headers.get('X-Forwarded-For'),
-        'uri_template'   : request.uri_template,
-        'endpoint'       : request.endpoint,
-        'headers'        : dict([(k, v) for k, v in request.headers.items()]),
-        'cookies'        : request.cookies,
-    }, status=200, headers={'X-Served-By': 'LeiSu'})
+# @doc.summary('APP Debug')
+# @base_bp.route('/debug', strict_slashes=True)
+# async def app_debug(request):
+#     return json({
+#         'cache'          : CACHE_CONTROL_SETTINGS,
+#         'method'         : request.method,
+#         'url'            : request.url,
+#         'query_string'   : request.query_string,
+#         'query_args'     : request.query_args,
+#         'form'           : request.form,
+#         'body'           : request.body,
+#         # 'ip'             : get_ipaddr(request),
+#         'request.ip'     : request.ip,
+#         'X-Real-Ip'      : request.headers.get('X-Real-Ip'),
+#         'X-Forwarded-For': request.headers.get('X-Forwarded-For'),
+#         'uri_template'   : request.uri_template,
+#         'endpoint'       : request.endpoint,
+#         'headers'        : dict([(k, v) for k, v in request.headers.items()]),
+#         'cookies'        : request.cookies,
+#     }, status=200, headers={'X-Served-By': 'LeiSu'})
 
 
 @doc.summary('HTTP测试接口')
