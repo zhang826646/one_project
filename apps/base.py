@@ -7,7 +7,7 @@ import logging
 import random
 import ujson
 from asyncio import CancelledError
-# from apps.hooks import StartHook
+from apps.hooks import StartHook
 # from apps.tasks.celery import celery_app
 # import functools
 from sanic.response import json, HTTPResponse, StreamingHTTPResponse
@@ -116,11 +116,11 @@ class BaseRequest(Request):
 #             handler, uri, methods=methods, host=host, strict_slashes=strict_slashes, version=version, name=name, stream=stream)
 #
 #
-# async def before_server_start(_app, _loop):
-#     logger.info('Sanic APP启动前钩子...')
-#     _app.leisu = StartHook(_app, _loop)
-#     celery_app.conf.update(_app.config)
-#     _app.leisu.celery = celery_app
+async def before_server_start(_app, _loop):
+    logger.info('Sanic APP启动前钩子...')
+    _app.leisu = StartHook(_app, _loop)
+    # celery_app.conf.update(_app.config)
+    # _app.leisu.celery = celery_app
 
 #
 # async def after_server_stop(_app, _loop):
@@ -139,7 +139,7 @@ class App(Sanic):
         kwargs.setdefault('request_class', BaseRequest)
         kwargs.setdefault('error_handler', CommonErrorHandler())
         super(App, self).__init__(*args, **kwargs)
-        # self.register_listener(before_server_start, 'before_server_start')
+        self.register_listener(before_server_start, 'before_server_start')
         # self.register_listener(after_server_stop, 'after_server_stop')
         # self.register_middleware(response_middleware, 'response')
 

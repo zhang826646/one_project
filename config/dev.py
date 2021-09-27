@@ -4,7 +4,6 @@ import sys
 config = dict(
     # Swagger
     API_SCHEMES=['https', 'http'],
-
     # Sanic App run config
     host='0.0.0.0',
     port=8000,
@@ -36,5 +35,11 @@ config = dict(
             }
         },
     },
+    mysql={
+            'leisu_www': {
+                'engine': 'mysql+pymysql://root:@180.76.163.190:3306/one_project?charset=utf8mb4',
+                'echo'  : False,
+            },
+        },
 )
 
