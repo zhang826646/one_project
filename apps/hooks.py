@@ -6,7 +6,7 @@ from sqlalchemy.orm import scoped_session, sessionmaker
 import aioredis
 import asyncio
 import uuid
-import redis
+# import redis
 import threading
 import asyncio
 import os

@@ -36,7 +36,7 @@ config = dict(
         },
     },
     mysql={
-            'leisu_www': {
+            'min_sql': {
                 'engine': 'mysql+pymysql://root:@180.76.163.190:3306/one_project?charset=utf8mb4',
                 'echo'  : False,
             },

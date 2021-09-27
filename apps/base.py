@@ -118,7 +118,7 @@ class BaseRequest(Request):
 #
 async def before_server_start(_app, _loop):
     logger.info('Sanic APP启动前钩子...')
-    _app.leisu = StartHook(_app, _loop)
+    _app.min = StartHook(_app, _loop)
     # celery_app.conf.update(_app.config)
     # _app.leisu.celery = celery_app
 
@@ -139,7 +139,7 @@ class App(Sanic):
         kwargs.setdefault('request_class', BaseRequest)
         kwargs.setdefault('error_handler', CommonErrorHandler())
         super(App, self).__init__(*args, **kwargs)
-        self.register_listener(before_server_start, 'before_server_start')
+        # self.register_listener(before_server_start, 'before_server_start')
         # self.register_listener(after_server_stop, 'after_server_stop')
         # self.register_middleware(response_middleware, 'response')
 
