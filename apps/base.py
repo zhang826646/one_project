@@ -123,8 +123,8 @@ async def before_server_start(_app, _loop):
     # _app.leisu.celery = celery_app
 
 #
-# async def after_server_stop(_app, _loop):
-#     logger.info('Sanic APP关闭后钩子...')
+async def after_server_stop(_app, _loop):
+    logger.info('Sanic APP关闭后钩子...')
 #     await _app.leisu.server_stop()
 #     _app.leisu.remove_mysql_session()
 #
@@ -139,7 +139,7 @@ class App(Sanic):
         kwargs.setdefault('request_class', BaseRequest)
         kwargs.setdefault('error_handler', CommonErrorHandler())
         super(App, self).__init__(*args, **kwargs)
-        # self.register_listener(before_server_start, 'before_server_start')
+        self.register_listener(before_server_start, 'before_server_start')
         # self.register_listener(after_server_stop, 'after_server_stop')
         # self.register_middleware(response_middleware, 'response')
 

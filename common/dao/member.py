@@ -16,6 +16,12 @@ class Member(BaseModel):
     password = Column(String(50), default='', comment='密码')
     credit = Column(Integer, default=0, comment='积分')
     level = Column(SmallInteger, default=1, comment='等级')
+    vip_expire_at = Column(Integer, default=0, comment='vip过期时间')
     created_at = Column(Integer(), default=now, comment='注册时间')
     updated_at = Column(Integer(), default=now, comment='更新时间')
+
+
+
+
+
 
