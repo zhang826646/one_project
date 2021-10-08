@@ -24,6 +24,16 @@ async def login(request):
         'phone':user.phone,
         'email':user.email
     }
-
     return json(item)
     # user_name=request.
+
+
+async def info(request):
+    son=request.app.min.get_mysql('min_sql')
+    user=son.query(Member).filter(Member.id == 100000).first()
+    item={
+        'name':user.name,
+        'phone':user.phone,
+        'email':user.email
+    }
+    return json(item)
