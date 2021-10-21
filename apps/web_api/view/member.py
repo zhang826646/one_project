@@ -1,7 +1,33 @@
-
 from sanic_openapi import doc
 from sanic.response import json
 from common.dao.member import  Member
+from apps import mako
+# from apps import jinja
+
+
+
+@doc.summary('主页')
+@doc.produces({
+    'code': doc.Integer('状态码'),
+    'msg' : doc.String('消息提示'),
+    'data': {'token': doc.String('Token')}
+}, content_type='application/json', description='Request True')
+@mako.template ( 'base.html' )
+async def index(request):
+    # print(mako)
+
+    item={
+        'name':111,
+        'phone':222,
+        'email':333
+    }
+    # return jinja.render("index.html", request, item)
+    return item
+
+
+
+
+
 
 
 @doc.summary('登录')
@@ -25,7 +51,7 @@ async def login(request):
         'email':user.email
     }
     return json(item)
-    # user_name=request.
+
 
 
 async def info(request):

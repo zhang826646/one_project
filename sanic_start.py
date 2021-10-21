@@ -3,6 +3,7 @@ from importlib import import_module
 from sanic_openapi import swagger_blueprint
 import argparse
 import logging.config
+from apps import mako,os
 
 parser = argparse.ArgumentParser(description="Start The Leisu APP Server")
 
@@ -23,6 +24,9 @@ start_args = parser.parse_args()
 # 匹配 APP 与配置文件
 app = import_module(f'apps.{start_args.app}.app').app
 app.config.update(import_module(f'config.{start_args.env}').config)
+paths=os.path.join(os.path.dirname(os.path.abspath(__file__)), 'templates')
+mako.init_app(app,pkg_path=paths)
+
 app.config.update({'LOGO': f'\n\n                   api\n        '
                            f' APP:<<{start_args.app}>>  ENV:<<{start_args.env}>>\n'
                            f'    Debug:{app.config.get("debug")}    ACCESS_LOG:{app.config.get("ACCESS_LOG")}'

@@ -18,6 +18,7 @@ from common.exceptions import LeisuException, ApiCode, InvalidRequestError, Logi
 from sanic.request import Request
 # from common.libs.crypto import aes_encrypt, caesar_encrypt
 import traceback
+# from sanic_jinja2 import SanicJinja2
 
 
 logger = logging.getLogger('leisu.root')
@@ -33,6 +34,11 @@ RATE_MODIFIER_MAP = {
     'm': lambda n: n * 60.0,
     'h': lambda n: n * 60.0 * 60.0,
 }
+
+# class Jinja(SanicJinja2):
+#     def __init__(self,pkg_path=None, *args, **kwargs):
+#         super(SanicJinja2, self).__init__(*args, **kwargs)
+#         self.pkg_path = pkg_path
 
 
 class CommonErrorHandler(ErrorHandler):
@@ -74,7 +80,7 @@ class CommonErrorHandler(ErrorHandler):
             logger.error(f'exception: {exception}')
             logger.error(f'\n{traceback.format_exc()}')
             # sanic在处理超时的时候不会走中间件 需要在这里释放DB资源
-            request.app.leisu.remove_mysql_session()
+            # request.app.min.remove_mysql_session()
             if env == 'prod':
                 return response_format(code=ApiCode.UNKNOWN_ERR, msg='未知错误', http_code=500)
             # 开发环境下其他异常默认让sanic自身处理
@@ -140,7 +146,7 @@ class App(Sanic):
         kwargs.setdefault('error_handler', CommonErrorHandler())
         super(App, self).__init__(*args, **kwargs)
         self.register_listener(before_server_start, 'before_server_start')
-        # self.register_listener(after_server_stop, 'after_server_stop')
+        self.register_listener(after_server_stop, 'after_server_stop')
         # self.register_middleware(response_middleware, 'response')
 
     # async def handle_request(self, request, write_callback, stream_callback):
