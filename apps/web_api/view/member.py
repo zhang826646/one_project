@@ -12,17 +12,18 @@ from apps import mako
     'msg' : doc.String('消息提示'),
     'data': {'token': doc.String('Token')}
 }, content_type='application/json', description='Request True')
-@mako.template ( 'base.html' )
+@mako.template ( 'index.html' )
 async def index(request):
     # print(mako)
 
-    item={
-        'name':111,
-        'phone':222,
-        'email':333
-    }
+    # data=[
+    #     {'name': 111, },
+    #     {'phone': 222, },
+    #     {'email': 333},
+    # ]
+    data=[1,2,3,4,5,6,7,8,9]
     # return jinja.render("index.html", request, item)
-    return item
+    return data
 
 
 

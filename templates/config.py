@@ -23,10 +23,20 @@ USE_YAML=True
 GOOGLE_ANALYTICS = ''
 SENTRY_DSN = ''
 BLOG_URL = 'https://www.baidu.com'
+BEIAN_ID=''
 
 # [(Endpoint, Name, IconName, Color), ...]
-SITE_NAV_MENUS: List[Tuple] = []
-BEIAN_ID = ''
+SITE_NAV_MENUS=[
+    {'endpoint':'/index','name':'首页'},
+    {'endpoint':'/index','name':'动态'},
+    {'endpoint':'/index','name':'专题'},
+    {'endpoint':'/index','name':'归档'},
+    {'endpoint':'/index','name':'标签'},
+    {'endpoint':'/index','name':'搜索'},
+    {'endpoint':'/index','name':'关于我','color': '#fc6423'},
+
+]
+
 
 
 REACT_PROMPT = '喜欢这篇文章吗? 记得给我留言或订阅哦'
