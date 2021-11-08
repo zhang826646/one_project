@@ -1,8 +1,11 @@
 from sanic_openapi import doc
-from sanic.response import json
+# from sanic.response import json
 from common.dao.member import  Member
 from apps import mako,render_template
+from typing import Dict, List, Tuple, Union
 # from apps import jinja
+import datetime
+
 
 
 
@@ -16,14 +19,17 @@ from apps import mako,render_template
 async def index(request):
     # print(mako)
 
-    # data=[
-    #     {'name': 111, },
-    #     {'phone': 222, },
-    #     {'email': 333},
-    # ]
-    data=[1,2,3,4,5,6,7,8,9]
+    # data={'data':{[
+    #     {'url': 'https://www.baidu.com','created_at': 1635921870,'tags': [{'url':'123','name':'zhang'},{'url':'234','name':'min'}],'excerpt':'excerpt' },
+    #     {'url': 'https://www.baidu.com', 'created_at': 1635955555,'tags': [{'url': '123', 'name': 'zhangzhang'}, {'url': '234', 'name': 'minmin'}], 'excerpt': 'excerpt2'},
+    # ]}}
     # return jinja.render("index.html", request, item)
-    return {}
+    # print('json+++++',data)
+    # return { ['Hello, sanic!',123,'123']}
+    new_time=datetime.datetime.fromtimestamp(1636366351)
+    data={'data':[{'title':'zhang','created_at':new_time,'excerpt':'这只是测试的一条数据','url':'http://www.sssoou.com','tags':[{'name':'技术','url':'https://www.baidu.com'}]},{'title':'zhang','created_at':new_time,'excerpt':'这只是测试的一条数据','url':'http://www.sssoou.com','tags':[{'name':'技术','url':'https://www.baidu.com'}]}]}
+    # data={'users':[{'name':'user1'},{'name':'user2'},{'name':'user3'},{'name':'user4'},{'name':'user5'},{'name':'user6'}]}
+    return data
 
 
 
