@@ -1,6 +1,5 @@
 <%! from templates.config import BLOG_URL, USE_YAML %>
-<%include file="base.html" />
-
+<%inherit file="/base.html" />
 
 <%def name="content()">
   <div class="${ 'post-list' if USE_YAML else ''}">

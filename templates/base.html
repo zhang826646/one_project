@@ -70,7 +70,7 @@
   ${self.more_header() | n}
 </%def>
 
-<!--<%def name="content()"></%def>-->
+<%def name="content()"></%def>
 
 <%def name="bottom_script()">
 </%def>
@@ -78,16 +78,16 @@
 <%def name="pagination()">
 </%def>
 
-<!--<%def name="ga()">-->
-<!--  % if GOOGLE_ANALYTICS:-->
-<!--  &lt;!&ndash; Global site tag (gtag.js) - Google Analytics &ndash;&gt;-->
-<!--  <script async src="https://www.googletagmanager.com/gtag/js?id=${ GOOGLE_ANALYTICS }"></script>-->
-<!--  <script>-->
-<!--   window.dataLayer = window.dataLayer || [];-->
-<!--   function gtag(){dataLayer.push(arguments);}-->
-<!--   gtag('js', new Date());-->
+<%def name="ga()">
+  % if GOOGLE_ANALYTICS:
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=${ GOOGLE_ANALYTICS }"></script>
+  <script>
+   window.dataLayer = window.dataLayer || [];
+   function gtag(){dataLayer.push(arguments);}
+   gtag('js', new Date());
 
-<!--   gtag('config', '${ GOOGLE_ANALYTICS }');-->
-<!--  </script>-->
-<!--  % endif-->
-<!--</%def>-->
+   gtag('config', '${ GOOGLE_ANALYTICS }');
+  </script>
+  % endif
+</%def>

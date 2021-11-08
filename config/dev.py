@@ -6,7 +6,7 @@ config = dict(
     API_SCHEMES=['https', 'http'],
     # Sanic App run config
     host='0.0.0.0',
-    port=8000,
+    port=30001,
     debug=True,
     ACCESS_LOG=True,
     workers=1,

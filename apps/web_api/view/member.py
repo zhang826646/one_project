@@ -1,7 +1,7 @@
 from sanic_openapi import doc
 from sanic.response import json
 from common.dao.member import  Member
-from apps import mako
+from apps import mako,render_template
 # from apps import jinja
 
 
@@ -12,7 +12,7 @@ from apps import mako
     'msg' : doc.String('消息提示'),
     'data': {'token': doc.String('Token')}
 }, content_type='application/json', description='Request True')
-@mako.template ( 'index.html' )
+@mako.template('index.html')
 async def index(request):
     # print(mako)
 
@@ -23,7 +23,7 @@ async def index(request):
     # ]
     data=[1,2,3,4,5,6,7,8,9]
     # return jinja.render("index.html", request, item)
-    return data
+    return {}
 
 
 

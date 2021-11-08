@@ -25,7 +25,7 @@ start_args = parser.parse_args()
 app = import_module(f'apps.{start_args.app}.app').app
 app.config.update(import_module(f'config.{start_args.env}').config)
 paths=os.path.join(os.path.dirname(os.path.abspath(__file__)), 'templates')
-mako.init_app(app,pkg_path=paths)
+mako.init_app(app,pkg_path=paths,context_processors=())
 
 app.config.update({'LOGO': f'\n\n                   api\n        '
                            f' APP:<<{start_args.app}>>  ENV:<<{start_args.env}>>\n'
