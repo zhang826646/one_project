@@ -1,5 +1,5 @@
 from sanic_openapi import doc
-# from sanic.response import json
+from sanic.response import json
 from common.dao.member import  Member
 from apps import mako,render_template
 from typing import Dict, List, Tuple, Union
@@ -30,6 +30,7 @@ async def index(request):
     data={'data':[{'title':'zhang','created_at':new_time,'excerpt':'这只是测试的一条数据','url':'http://www.sssoou.com','tags':[{'name':'技术','url':'https://www.baidu.com'}]},{'title':'zhang','created_at':new_time,'excerpt':'这只是测试的一条数据','url':'http://www.sssoou.com','tags':[{'name':'技术','url':'https://www.baidu.com'}]}]}
     # data={'users':[{'name':'user1'},{'name':'user2'},{'name':'user3'},{'name':'user4'},{'name':'user5'},{'name':'user6'}]}
     return data
+    # return json(data)
 
 
 
