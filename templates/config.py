@@ -33,7 +33,8 @@ SITE_NAV_MENUS=[
     {'endpoint':'/index','name':'归档'},
     {'endpoint':'/index','name':'标签'},
     {'endpoint':'/index','name':'搜索'},
-    {'endpoint':'/index','name':'关于我','color': '#fc6423'},
+    {'endpoint':'/index','name':'登录/注册'},
+    {'endpoint':'/index','name':'头像','color': '#fc6423'},
 
 ]
 
