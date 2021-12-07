@@ -15,7 +15,7 @@ import datetime
     'msg' : doc.String('消息提示'),
     'data': {'token': doc.String('Token')}
 }, content_type='application/json', description='Request True')
-@mako.template('index.html')
+@mako.template('base.html')
 async def index(request):
     # print(mako)
 

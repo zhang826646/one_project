@@ -36,8 +36,8 @@ config = dict(
         },
     },
     mysql={
-            'min_sql': {
-                'engine': 'mysql+pymysql://root:@180.76.163.190:3306/one_project?charset=utf8mb4',
+            'ttm_sql': {
+                'engine': 'mysql+pymysql://ll:@8.142.187.110:3306/TTM?charset=utf8mb4',
                 'echo'  : False,
             },
         },

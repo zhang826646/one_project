@@ -18,7 +18,7 @@ paths = [os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))
 # mako.init_app(app)
 
 @app.route('/index')
-@mako.template('index.html')  # decorator method is staticmethod
+@mako.template('base.html')  # decorator method is staticmethod
 async def index(request):
     print(os.path.abspath(__file__))
     print(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
