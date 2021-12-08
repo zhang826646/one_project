@@ -1,0 +1,32 @@
+<%inherit file="/base.html" />
+
+<%def name="content()">
+  <div class="${ 'post-list' if USE_YAML else ''}">
+    <div class="recent-posts">
+      % for post in data:
+      <article class="recent-post-item">
+        <a class="title" href="${ post.get('url') }"><h2>${ post['title'] }</h2></a>
+          <div class="post-meta">
+            <time class="time" datetime="${ post['created_at'].strftime('%Y-%m-%dT%H:%M:%S.%fZ') }">
+              ${ post['created_at'].strftime('%Y-%m-%d')  }
+            </time>
+            <span class="slash">/</span>
+
+            <ul class="index-tag-list">
+              % for tag in post['tags']:
+                <li class="index-tag-list-item"><a class="index-tag-list-link" href="${ tag.get('url') }">${ tag.get('name') }</a></li>
+              % endfor
+            </ul>
+          </div>
+            <div class="post-excerpt">
+              <p>${ post.get('excerpt') }</p>
+            </div>
+
+          <a class="more" href="${ post.get('url') }"> 阅读全文 〉</a>
+      </article>
+      % endfor
+    </div>
+  </div>
+
+
+</%def>

@@ -5,6 +5,8 @@ from sanic_mako import SanicMako,os,render_template
 # jinja=SanicJinja2(pkg_path='D:/MyProject/one_project/templates')
 mako = SanicMako()
 
+import logging
 
+logger = logging.getLogger('TTM')
 
 
