@@ -31,7 +31,7 @@ class StartHook:
         """
         def scopefunc():
             try:
-                return asyncio.Task.current_task()  # Sanic 使用当前Task来唯一 Sqlalchemy Session
+                return asyncio.current_task()  # Sanic 使用当前Task来唯一 Sqlalchemy Session
             except RuntimeError:
                 return threading.current_thread()  # run_on_executor 使用当前Threading来唯一 Sqlalchemy Session
 

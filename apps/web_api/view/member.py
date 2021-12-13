@@ -38,18 +38,23 @@ async def login(request):
 
     cond = TtmMember.banned == 0  # banned 1禁用 0正常
     cond = and_(cond,or_(TtmMember.email == username,TtmMember.name == username,TtmMember.phone == username))
-    ttm_member = ttm_sql.query(TtmMember).filter(cond).first()
+
+    @run_sqlalchemy()
+    def get_menber(db_session):
+        return db_session.query(TtmMember).filter(cond).first()
+    ttm_member = await get_menber(ttm_sql)
 
     if not ttm_member:
         raise ApiError(code=ApiCode.PARAM_ERR, msg='用户不存在')
     if not bcrypt.checkpw(password.encode(), ttm_member.password.encode()):
         raise ApiError(code=ApiCode.PARAM_ERR, msg='密码错误')
 
+
     token = encrypt_web_token({'uid': ttm_member.id, 'time': now()})
-    response = {
+    response = json({
         'code': ApiCode.SUCCESS,
         'data': {'token': token}
-    }
+    })
     response.cookies['token'] = token
     response.cookies["token"]['path'] = '/'
     response.cookies['token']['max-age'] = 86400 * 7
@@ -58,8 +63,8 @@ async def login(request):
     response.cookies['token']['secure'] = True
     response.cookies['token']['samesite'] = None
 
-    # return response
-    return json(response)
+    return response
+    # return json(response)
 
 
 @doc.summary('注册')

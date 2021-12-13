@@ -23,8 +23,9 @@ def authorized():
                     raise NotLoginError()
             except CookieError:
                 pass
+            print(uid)
             kwargs['uid'] = uid
-            request['uid'] = uid
+            # request['uid'] = uid
             response = await f(request, *args, **kwargs)
             return response
         return decorated_function
