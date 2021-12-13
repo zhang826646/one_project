@@ -131,27 +131,26 @@ async def register(request):
 @doc.summary('账号信息')
 @doc.produces({
     'code': doc.Integer('状态码'),
-    'msg' : doc.String('消息提示'),
-    'data': doc.Dictionary('账号信息')
+    'msg': doc.String('消息提示'),
+    'data': doc.Dictionary()
 }, content_type='application/json', description='Request True')
 @authorized()
-async def get_detail(request,uid):
-
+async def get_detail(request, uid):
     ttm_sql = request.app.ttm.get_mysql('ttm_sql')
 
     @run_sqlalchemy()
     def get_menber(db_session):
-        return db_session.query(TtmMember).filter(TtmMember.id==uid).first()
+        return db_session.query(TtmMember).filter(TtmMember.id == uid).first()
 
     ttm_member = await get_menber(ttm_sql)
-    data={
-        'id':ttm_member.id,
-        'name':ttm_member.name,
+    data = {
+        'id': ttm_member.id,
+        'name': ttm_member.name,
     }
 
     item = {
         'code': ApiCode.SUCCESS,
-        'data':data,
+        'data': data,
         'msg': ''
     }
     return json(item)
