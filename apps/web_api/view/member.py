@@ -63,10 +63,10 @@ async def login(request):
         raise ApiError(code=ApiCode.PARAM_ERR, msg='密码错误')
 
     token = encrypt_app_token({'uid': ttm_member.id, 'time': now()})
-    response = json({
+    response = {
         'code': ApiCode.SUCCESS,
         'data': {'token': token}
-    })
+    }
     response.cookies['token'] = token
     response.cookies["token"]['path'] = '/'
     response.cookies['token']['max-age'] = 86400 * 7
@@ -75,7 +75,8 @@ async def login(request):
     response.cookies['token']['secure'] = True
     response.cookies['token']['samesite'] = None
 
-    return response
+    # return response
+    return json(response)
 
 
 @doc.summary('注册')
