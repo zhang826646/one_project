@@ -1,11 +1,6 @@
 
 from sqlalchemy import create_engine, text
 from sqlalchemy.orm import scoped_session, sessionmaker
-
-
-import aioredis
-import asyncio
-import uuid
 # import redis
 import threading
 import asyncio

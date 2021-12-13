@@ -39,7 +39,7 @@ if not app.config.debug:
 
 # 初始化自定义日志
 logging.config.dictConfig(app.config.logging_config)
-logger = logging.getLogger('leisu.root')
+logger = logging.getLogger('ttm.root')
 
 
 # 注册 Swagger Blueprint

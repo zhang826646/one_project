@@ -21,7 +21,7 @@ import traceback
 # from sanic_jinja2 import SanicJinja2
 
 
-logger = logging.getLogger('leisu.root')
+logger = logging.getLogger('ttm.root')
 
 
 IP_RATE_LIMIT_SETTINGS = {}
@@ -124,7 +124,7 @@ class BaseRequest(Request):
 #
 async def before_server_start(_app, _loop):
     logger.info('Sanic APP启动前钩子...')
-    _app.min = StartHook(_app, _loop)
+    _app.ttm = StartHook(_app, _loop)
     # celery_app.conf.update(_app.config)
     # _app.leisu.celery = celery_app
 

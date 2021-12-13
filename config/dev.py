@@ -37,7 +37,7 @@ config = dict(
     },
     mysql={
             'ttm_sql': {
-                'engine': 'mysql+pymysql://ll:@8.142.187.110:3306/TTM?charset=utf8mb4',
+                'engine': 'mysql+pymysql://ll:Ll123???@8.142.187.110:3306/TTM?charset=utf8mb4',
                 'echo'  : False,
             },
         },
