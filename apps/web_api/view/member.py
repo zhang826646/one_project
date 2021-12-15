@@ -11,6 +11,7 @@ from typing import Dict, List, Tuple, Union
 from sqlalchemy import and_,or_
 import bcrypt
 import datetime
+import re
 from apps.web_api.decorators import authorized
 
 
@@ -194,7 +195,7 @@ async def up_detail(request, uid):
         if avatar:
             member.avatar=avatar
     ttm_sql.commit()
-    return json({'code': ApiCode.SUCCESS, 'msg': '保存成功'})\
+    return json({'code': ApiCode.SUCCESS, 'msg': '保存成功'})
 
 
 @doc.summary('修改账号信息')
