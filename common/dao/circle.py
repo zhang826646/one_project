@@ -9,6 +9,7 @@ class CirclePost(BaseModel):
     id = Column(Integer, primary_key=True)
     catalog_id = Column(Integer, comment='板块ID')
     uid = Column(Integer, comment='用户ID')
+    type = Column(SmallInteger, default=0, comment='类型[1技术|2生活]')
     title = Column(String(50), default='', comment='帖子标题')
     content = Column(Text(), nullable=True, default='', comment='帖子内容')
     tag = Column(String(50), nullable=True, default='', comment='标签')

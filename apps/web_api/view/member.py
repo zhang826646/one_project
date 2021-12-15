@@ -151,6 +151,11 @@ async def get_detail(request, uid):
     data = {
         'id': ttm_member.id,
         'name': ttm_member.name,
+        'avatar':ttm_member.avatar,
+        'email': ttm_member.email,
+        'phone': ttm_member.phone,
+        'credit': ttm_member.credit,
+        'level': ttm_member.level,
     }
 
     item = {
@@ -159,3 +164,60 @@ async def get_detail(request, uid):
         'msg': ''
     }
     return json(item)
+
+@doc.summary('修改账号信息')
+@doc.produces({
+    'code': doc.Integer('状态码'),
+    'msg': doc.String('消息提示'),
+    'data': doc.Dictionary()
+}, content_type='application/json', description='Request True')
+@validate_params(
+    CharField(name='name'),
+    IntegerField(name='phone'),
+    CharField(name='email',required=False, allow_empty=False),
+)
+@authorized()
+async def up_detail(request, uid):
+    name = request.valid_data.get('name')
+    phone = request.valid_data.get('phone')
+    email = request.valid_data.get('email')
+    avatar = request.valid_data.get('avatar')
+    ttm_sql = request.app.ttm.get_mysql('ttm_sql')
+
+    member = ttm_sql.query(TtmMember).filter(TtmMember.id == uid).first()
+
+    if member:
+        if name:
+            member.name=name
+        if email:
+            member.email=email
+        if avatar:
+            member.avatar=avatar
+    ttm_sql.commit()
+    return json({'code': ApiCode.SUCCESS, 'msg': '保存成功'})\
+
+
+@doc.summary('修改账号信息')
+@doc.produces({
+    'code': doc.Integer('状态码'),
+    'msg': doc.String('消息提示'),
+    'data': doc.Dictionary()
+}, content_type='application/json', description='Request True')
+@validate_params(
+    CharField(name='password'),
+    CharField(name='confirm_password'),
+)
+@authorized()
+async def up_passwd(request, uid):
+    password = request.valid_data.get('password')
+    confirm_password = request.valid_data.get('confirm_password')
+    ttm_sql = request.app.ttm.get_mysql('ttm_sql')
+
+    if password != confirm_password:
+        raise ApiError(code=ApiCode.NORMAL_ERR, msg='新密码与确认密码不一致')
+    member = ttm_sql.query(TtmMember).filter(TtmMember.id == uid).first()
+    if not bcrypt.checkpw(password.encode(), member.password.encode()):
+        raise ApiError(code=ApiCode.NORMAL_ERR, msg='原密码错误')
+    member.password = bcrypt.hashpw(password.encode(), bcrypt.gensalt(10))
+    ttm_sql.commit()
+    return json({'code': ApiCode.SUCCESS, 'msg': '保存成功'})
