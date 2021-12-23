@@ -24,7 +24,7 @@ from apps import mako
 async def index(request):
 
     new_time=datetime.datetime.fromtimestamp(1636366351)
-    data={'data':[{'title':'zhang','created_at':new_time,'excerpt':'这只是测试的一条数据','url':'http://www.sssoou.com','tags':[{'name':'技术','url':'https://www.baidu.com'}]},{'title':'zhang','created_at':new_time,'excerpt':'这只是测试的一条数据','url':'http://www.sssoou.com','tags':[{'name':'技术','url':'https://www.baidu.com'}]}]}
+    data={'data':[{'title':'zhang','created_at':new_time,'excerpt':'这只是测试的一条数据','urls':'http://www.sssoou.com','tags':[{'name':'技术','urls':'https://www.baidu.com'}]},{'title':'zhang','created_at':new_time,'excerpt':'这只是测试的一条数据','urls':'http://www.sssoou.com','tags':[{'name':'技术','urls':'https://www.baidu.com'}]}]}
     # data={'users':[{'name':'user1'},{'name':'user2'},{'name':'user3'},{'name':'user4'},{'name':'user5'},{'name':'user6'}]}
     return data
     # return json(data)
@@ -214,10 +214,10 @@ async def save_post(request):
     #             src_match = re.search(r'src="([^"]+)"', text)
     #             if not src_match:
     #                 return ''
-    #             url = src_match.group(1)
-    #             url = re.sub(r'\?.*', '', url)
+    #             urls = src_match.group(1)
+    #             urls = re.sub(r'\?.*', '', urls)
     #
-    #             fetch_result = qiniu_helper.sync_fetch(url, path=f'attachment/{datetime.now().strftime("%Y/%m/%d/")}')
+    #             fetch_result = qiniu_helper.sync_fetch(urls, path=f'attachment/{datetime.now().strftime("%Y/%m/%d/")}')
     #
     #             if fetch_result:
     #                 key = fetch_result['key']

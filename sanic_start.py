@@ -8,7 +8,7 @@ from apps import mako,os
 parser = argparse.ArgumentParser(description="Start The Leisu APP Server")
 
 parser.add_argument('-app', '--application', default='web_api', dest='app',
-                    help='启动的APP，可选项[app_api|web_api|web_internal_api|mobile_api|admin_api]', type=str)
+                    help='启动的APP，可选项[all_api|app_api|web_api|web_internal_api|mobile_api|admin_api]', type=str)
 
 parser.add_argument('-env', '--environment', default='dev', dest='env',
                     help='配置文件，可选项[local|dev|prod]', type=str)
@@ -22,7 +22,10 @@ parser.add_argument('-work', '--workers', dest='work',
 start_args = parser.parse_args()
 
 # 匹配 APP 与配置文件
-app = import_module(f'apps.{start_args.app}.app').app
+if start_args.app == 'all_api':
+    app = import_module(f'apps.app').app
+else:
+    app = import_module(f'apps.{start_args.app}.app').app
 app.config.update(import_module(f'config.{start_args.env}').config)
 paths=os.path.join(os.path.dirname(os.path.abspath(__file__)), 'templates')
 mako.init_app(app,pkg_path=paths,context_processors=())

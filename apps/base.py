@@ -53,7 +53,7 @@ class CommonErrorHandler(ErrorHandler):
         """
         if isinstance(exception, (NotFound, MethodNotSupported)):
             # 404、405异常都返回404
-            # return response_format(code=404, data=request.url, http_code=404)
+            # return response_format(code=404, data=request.urls, http_code=404)
             return response_format(code=404, msg='访问资源不存在，请更新最新版本', http_code=404)
         if isinstance(exception, (InvalidUsage,)):
             return response_format(code=ApiCode.ILLEGAL_REQ, msg='请求体解析错误')

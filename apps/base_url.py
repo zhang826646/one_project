@@ -28,7 +28,7 @@ async def app_status(request):
 #     return json({
 #         'cache'          : CACHE_CONTROL_SETTINGS,
 #         'method'         : request.method,
-#         'url'            : request.url,
+#         'urls'            : request.urls,
 #         'query_string'   : request.query_string,
 #         'query_args'     : request.query_args,
 #         'form'           : request.form,
@@ -79,7 +79,7 @@ async def aes(request):
             'aoo': 'test中文',
             'boo': 1,
             'coo': [1, 2, 3],
-            'url': request.url,
+            'urls': request.url,
             'now': datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         }
 
@@ -97,7 +97,7 @@ async def aes(request):
 #         'aoo': 'test中文',
 #         'boo': 1,
 #         'coo': [1, 2, 3],
-#         'url': request.url,
+#         'urls': request.urls,
 #         'now': datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 #     })
 #     return json({'code': 106, 'data': data, 'msg': ''})
