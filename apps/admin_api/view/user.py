@@ -8,7 +8,7 @@ from sqlalchemy.exc import IntegrityError
 
 from common.exceptions import ApiError, ApiCode
 from common.dao.user import User
-from common.libs.tokenize_util import encrypt_admin_token
+from common.libs.tokenize_util import encrypt_admin_token,decrypt_admin_token
 from common.libs.comm import to_int, to_str, now, total_number, get_ipaddr
 from common.libs.aio import run_sqlalchemy
 from common.helper.validator_helper import validate_params, IntegerField, CharField, ListField
@@ -103,10 +103,12 @@ async def logout(request):
     }
 }, content_type='application/json', description='Request True')
 # @route_acl('user_user_info', acl_required=False)
-async def user_info(request):
+async def info(request):
     ttm_sql = request.app.ttm.get_mysql('ttm_sql')
-    print(request)
-    uid = request['user_id']
+    token = request.args['token'][0]
+    user_info = decrypt_admin_token(token)
+    print('__________', user_info)
+    uid = user_info.get('uid')
 
     @run_sqlalchemy()
     def get_user_data(db_session):
@@ -116,36 +118,12 @@ async def user_info(request):
     if not user or user.status == 0:
         raise ApiError(code=ApiCode.NORMAL_ERR, msg='用户不存在')
 
-    # @run_sqlalchemy()
-    # def get_user_group(db_session):
-    #     return db_session.query(UserGroup).filter(UserGroup.id == user.group_id).first()
-    #
-    # user_group = await get_user_group(leisu_www)
-    # if user_group:
-    #     group_name = user_group.name
-    #     group_description = user_group.description
-    #     active = user_group.active
-    #     permissions = await get_frontend_routes(request.app, user_group.id)
-    # else:
-    #     group_name = ''
-    #     group_description = ''
-    #     active = 0
-    #     permissions = []
-    group_name = ''
-    group_description = ''
-    active = 0
-    permissions = []
-    roles = {
-        'id'             : user.group_id,
-        'name'           : group_name,
-        'description'    : group_description,
-        'active'         : active,
-        'permission_list': list(permissions)
-    }
+    roles = ['admin']
     data = {
         'id'       : user.id,
         'name'     : user.name,
-        'real_name': user.real_name,
+        'avatar': f'https://wpimg.wallstcn.com/f778738c-e4f8-4870-b634-56703b4acafe.gif',
+        'introduction': "I am a super administrator",
         'roles'    : roles
     }
     return json({'code': ApiCode.SUCCESS, 'data': data})
