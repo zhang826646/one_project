@@ -6,7 +6,7 @@ import re
 from sanic.response import json
 from sanic.exceptions import InvalidUsage
 from sanic_openapi import doc
-from sqlalchemy import and_, func
+from sqlalchemy import and_, func, or_
 from sqlalchemy.exc import IntegrityError
 
 from common.exceptions import ApiError, ApiCode
@@ -99,3 +99,39 @@ async def member_list(request):
         'data'        : lists,
     }
     return json(data)
+
+
+@doc.summary('添加新用户')
+@validate_params(
+    CharField(name='name'),
+    CharField(name='avatar', required=False, allow_empty=True),
+    CharField(name='zone', required=False, allow_empty=True),
+    CharField(name='phone'),
+    CharField(name='password'),
+    CharField(name='email', required=False)
+)
+async def add_member(request):
+    name = request.valid_data.get('name')
+    avatar = request.valid_data.get('avatar')
+    zone = request.valid_data.get('zone') or '86'
+    phone = request.valid_data.get('phone')
+    password = request.valid_data.get('password')
+    email = request.valid_data.get('email')
+    ttm_sql = request.app.ttm.get_mysql('ttm_sql')
+    member = ttm_sql.query(TtmMember).filter(or_(TtmMember.name == name,
+                                                 TtmMember.phone == phone)).first()
+    if member:
+        raise ApiError(code=ApiCode.NORMAL_ERR, msg='用户已存在')
+
+    item = TtmMember()
+    item.name = name
+    item.avatar = avatar
+    item.zone = zone
+    item.phone = phone
+    item.email = email
+    item.password = bcrypt.hashpw(password.encode(), bcrypt.gensalt())
+    item.created_at = item.updated_at = now()
+    ttm_sql.add(item)
+    ttm_sql.commit()
+
+    return json({'code': ApiCode.SUCCESS, 'msg': '保存成功'})
