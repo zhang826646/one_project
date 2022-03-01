@@ -257,3 +257,93 @@ async def save_post(request):
 
 
     return json({'code': ApiCode.SUCCESS, 'msg': '操作成功', 'data': {'id': item.id}})
+
+
+@doc.summary('评论列表')
+@doc.consumes(
+    doc.JsonBody({
+        'page'          : doc.Integer('页码'),
+        'limit'         : doc.Integer('每页条数'),
+        'search_field'  : doc.String('搜索字段[id:帖子ID|uid:用户ID|created_at:发布时间|content:评论内容'),
+        'search_keyword': doc.String('搜索值[created_at:"1569859200|1569945600"]')
+    }), content_type='application/json', location='body', required=True
+)
+async def comment_list(request):
+    page = request.valid_data.get('page') or 1
+    limit = request.valid_data.get('limit') or 15
+    search_field = request.valid_data.get('search_field')
+    search_keyword = request.valid_data.get('search_keyword')
+
+    offset = (page - 1) * limit
+    lists = []
+
+    ttm_sql = request.app.ttm.get_mysql('ttm_sql')
+
+    if search_field and search_keyword:
+        if search_field == 'id':
+            search_cond = CircleComment.id == int(search_keyword)
+        elif search_field == 'uid':
+            search_cond = CircleComment.uid == int(search_keyword)
+        elif search_field == 'created_at':
+            created_at = search_keyword.split('|')
+            search_cond = CircleComment.created_at.between(int(created_at[0], 0), int(created_at[1], 0))
+        elif search_field == 'content':
+            search_cond = CircleComment.content.like(f'%{search_keyword}%')
+        else:
+            search_cond = True
+    else:
+        search_cond = True
+
+    @run_sqlalchemy()
+    def get_comment_list_data(db_session):
+        return db_session.query(CircleComment,  TtmMember) \
+            .outerjoin(TtmMember, TtmMember.id == CircleComment.uid) \
+            .filter(search_cond) \
+            .order_by(CircleComment.created_at.desc()) \
+            .offset(offset).limit(limit) \
+            .all()
+
+    rows = await get_comment_list_data(ttm_sql)
+
+    post_ids = set()
+    for row in rows:
+        post_ids.add(row.CircleComment.post_id)
+
+        lists.append({
+            'id'         : row.CircleComment.id,
+            'uid'        : row.CircleComment.uid,
+            'name'       : row.LeisuMember.name if row.LeisuMember else '',
+            'avatar'     : row.LeisuMember.avatar,
+            'level'      : row.LeisuMember.level if row.LeisuMember else 0,
+            'banned'     : row.LeisuMember.banned if row.LeisuMember else 0,
+            'vip'        : row.LeisuMember.vip_expire_at > now() if row.LeisuMember else False,
+            'extra'      : ujson.loads(row.LeisuMember.extra) if row.LeisuMember and row.LeisuMember.extra else {},
+            'post_id'    : row.CircleComment.post_id,
+            'content'    : row.CircleComment.content,
+            'deleted'    : row.CircleComment.deleted,
+            'hidden'     : row.CircleComment.hidden,
+            'created_at' : row.CircleComment.created_at,
+            'floor'      : row.CircleComment.floor,
+            'only_creator': False
+        })
+
+    if post_ids:
+        @run_sqlalchemy()
+        def post_row(db_session):
+            return db_session.query(CirclePost).filter(CirclePost.id.in_(post_ids)).all()
+        post_data = await post_row(ttm_sql)
+        only_dic = {}
+        for post in post_data:
+            if post.params and ujson.loads(post.params).get('only_creator'):
+                only_dic[post.id] = ujson.loads(post.params).get('only_creator')
+        for item in lists:
+            if item['post_id'] in only_dic.keys() and item['id'] in only_dic[item['post_id']]:
+                item['only_creator'] = True
+    data = {
+        'code'        : ApiCode.SUCCESS,
+        'current_page': page,
+        'page_size'   : limit,
+        'total'       : 12,
+        'data'        : lists
+    }
+    return json(data)
