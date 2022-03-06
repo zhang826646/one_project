@@ -120,7 +120,7 @@ async def info(request):
 
     roles = ['admin']
     data = {
-        'id'       : user.id,
+        # 'id'       : user.id,
         'name'     : user.name,
         'avatar': f'https://wpimg.wallstcn.com/f778738c-e4f8-4870-b634-56703b4acafe.gif',
         'introduction': "I am a super administrator",

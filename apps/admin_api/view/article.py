@@ -109,12 +109,12 @@ async def article_list(request):
             'visited'          : '0|0',
         })
 
-
+    total = ttm_sql.query(func.count(CirclePost.id)).filter(cond).scalar()
     data = {
         'code'        : ApiCode.SUCCESS,
         'current_page': page,
         'page_size'   : limit,
-        # 'total'       : total,
+        'total'       : total,
         'data'        : lists
     }
     return json(data)
@@ -253,3 +253,100 @@ async def save_article(request):
 
 
     return json({'code': ApiCode.SUCCESS, 'msg': '操作成功', 'data': {'id': item.id}})
+
+
+@doc.summary('帖子详情')
+async def article_detali(request, article_id):
+    ttm_sql = request.app.ttm.get_mysql('ttm_sql')
+
+    def compile_content(content, attachments):
+        """
+        将帖子内容与图片编码为HTML
+        :param content: 帖子内容
+        :param attachments: 帖子图片 p1#group/attachments/FqXPGSso5Kf3PmtBR2RBkPmkytRJ#image/jpeg#828#1792
+        :return: HTML <img> 标签
+        """
+        attachments_dict = {}
+        if attachments:
+            attachments_list = attachments.split('|')
+            for _item in attachments_list:
+                attachment_data = _item.split('#')
+                if attachment_data[1] != 'None':
+                    attachments_dict[attachment_data[0]] = attachment_data
+
+        def repl(word):
+            name = word.group(1)
+            if name in attachments_dict:
+                # url = f'{cdn_url}{attachments_dict[name][1]}'
+                url=''
+                key = attachments_dict[name][1]
+                mime_type = attachments_dict[name][2]
+                width = attachments_dict[name][3]
+                height = attachments_dict[name][4]
+                return f'<img src="{url}" class="attachment" data-key="{key}" ' \
+                       f'data-mime-type="{mime_type}" data-width="{width}" data-height="{height}">'
+            return ''
+
+        compiled = re.sub(r'{{([^}]*)}}', repl, content)  # 替换{{p1}} 为img标签
+        compiled = re.sub(r'([^\r\n]*)?(\r\n|\r|\n)?', '<p>\g<1></p>', compiled)  # 替换回车为 </br>
+        return compiled
+
+    @run_sqlalchemy()
+    def get_post_detail_data(db_session):
+        return db_session.query(CirclePost, TtmMember) \
+            .join(TtmMember, CirclePost.uid == TtmMember.id) \
+            .filter(CirclePost.id == article_id) \
+            .first()
+
+    row = await get_post_detail_data(ttm_sql)
+    if not row:
+        raise ApiError(code=ApiCode.NORMAL_ERR, msg='查无此帖')
+
+    data = {
+        'id'               : row.CirclePost.id,
+        'title'            : row.CirclePost.title,
+        'content'          : row.CirclePost.content,
+        'content_compiled' : compile_content(row.CirclePost.content, row.CirclePost.attachments),
+        'type'             : row.CirclePost.type if row.CirclePost.type != 4 else 0,  # 比赛贴转为普通贴
+        'attachments'      : row.CirclePost.attachments,
+        'total_attachments': row.CirclePost.total_attachments,
+        'catalog_id'       : row.CirclePost.catalog_id,
+        # 'catalog_name'     : group_catalogs[row.CirclePost.catalog_id % 100]['name'],
+        'tag'              : row.CirclePost.tag,
+        'catalog_name'      :'',
+        'uid'              : row.CirclePost.uid,
+        'name'             : row.TtmMember.name,
+        # 'avatar'           : f'{cdn_url}user/avatar/{row.TtmMember.avatar}' if row.TtmMember else '',
+        'avatar':f'https://wpimg.wallstcn.com/f778738c-e4f8-4870-b634-56703b4acafe.gif',
+        'level'            : row.TtmMember.level,
+        'banned'           : row.TtmMember.banned,
+        'vip'              : row.TtmMember.vip_expire_at > now(),
+        'deleted'          : row.CirclePost.deleted,
+        'locked'           : row.CirclePost.locked,
+        'picked'           : row.CirclePost.picked,
+        'hidden'           : row.CirclePost.hidden,
+        'total_comments'   : row.CirclePost.total_comments,
+        'total_floors'     : row.CirclePost.total_floors,
+        'created_at'       : row.CirclePost.created_at,
+    }
+    return json({'code': ApiCode.SUCCESS, 'data': data})
+
+
+@doc.summary('删除帖子')
+@validate_params(
+    ListField(name='post_id_list'),
+    IntegerField(name='deleted', min_value=0, max_value=1),
+    CharField(name='reason', required=False)
+)
+async def delete_article(request):
+    post_id_list = request.valid_data.get('post_id_list')
+    deleted = request.valid_data.get('deleted')
+    reason = request.valid_data.get('reason', '')
+    ttm_sql = request.app.ttm.get_mysql('ttm_sql')
+
+    posts = ttm_sql.query(CirclePost).filter(CirclePost.id.in_(post_id_list)).all()
+    for post in posts:
+        post.deleted = deleted
+
+    ttm_sql.commit()
+    return json({'code': ApiCode.SUCCESS, 'msg': '操作成功'})
