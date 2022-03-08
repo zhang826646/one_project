@@ -1570,6 +1570,9 @@ body {
 .post .post-content a {
     color: #2196F3
 }
+.post .post-content p{
+    text-align:left;
+}
 
 .page {
     max-width: 880px;

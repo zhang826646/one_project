@@ -23,62 +23,38 @@ from apps import mako
 @mako.template('index.html')
 async def index(request):
 
-    new_time=datetime.datetime.fromtimestamp(1636366351)
-    data={'data':[{'title':'zhang','created_at':new_time,'excerpt':'这只是测试的一条数据','urls':'http://www.sssoou.com','tags':[{'name':'技术','urls':'https://www.baidu.com'}]},{'title':'zhang','created_at':new_time,'excerpt':'这只是测试的一条数据','urls':'http://www.sssoou.com','tags':[{'name':'技术','urls':'https://www.baidu.com'}]}]}
-    # data={'users':[{'name':'user1'},{'name':'user2'},{'name':'user3'},{'name':'user4'},{'name':'user5'},{'name':'user6'}]}
-    return data
-    # return json(data)
-
-
-@doc.summary('主页1')
-@doc.produces({
-    'code': doc.Integer('状态码'),
-    'msg' : doc.String('消息提示'),
-    'data': {'token': doc.String('Token')}
-}, content_type='application/json', description='Request True')
-async def index1(request):
     ttm_sql = request.app.ttm.get_mysql('ttm_sql')
-
     @run_sqlalchemy()
     def get_circles(db_session):
         return db_session.query(CirclePost).filter().order_by(CirclePost.created_at.desc()).limit(20).all()
-
-    item = []
-    for row in await get_circles(ttm_sql):
-        item.append({
-            'id': row.id,
-            'catalog_id': row.catalog_id,
-            'type': row.type,
-            'title': row.title,
-            'content': row.content,
-            'total_comments': row.total_comments,
-            'attachments': row.attachments,
-            'created_at': row.created_at,
-
+    circles=await get_circles(ttm_sql)
+    list=[]
+    for circle in circles:
+        list.append({
+            'title':circle.title,
+            'created_at':datetime.datetime.fromtimestamp(circle.created_at),
+            'excerpt':circle.content if len(circle.content)<150 else circle.content[:150]+' .....',
+            'url':f'cat_post/{circle.id}',
+            'tags':[{'name':'技术','urls':'https://www.baidu.com'}]
         })
-    return json({
-        'code': 0,
-        'msg': '',
-        'data': item
-    })
+
+    return {'data':list}
+    # return json(data)
+
 
 @doc.summary('查看文章详情')
 @doc.consumes(
     doc.JsonBody({
-        'post_id': doc.String('用户名'),
+        'post_id': doc.String('文章id'),
     }), content_type='application/json', location='body', required=True
 )
-@doc.produces({
-    'code': doc.Integer('状态码'),
-    'msg' : doc.String('消息提示'),
-    'data': {'token': doc.String('Token')}
-}, content_type='application/json', description='Request True')
-async def cat_post(request,post_id):
+@mako.template('cir.html')
+async def cat_post(request, post_id):
     ttm_sql = request.app.ttm.get_mysql('ttm_sql')
-    # circle= ttm_sql.query(CirclePost).filter(CirclePost.id == post_id).first()
-    #
-    # if not circle:
-    #     raise ApiError(code=ApiCode.PARAM_ERR, msg='文章不存在')
+    circle= ttm_sql.query(CirclePost).filter(CirclePost.id == post_id).first()
+
+    if not circle:
+        raise ApiError(code=ApiCode.PARAM_ERR, msg='文章不存在')
 
     def compile_content(content, attachments):
         """
@@ -121,13 +97,15 @@ async def cat_post(request,post_id):
     row = await get_post_detail_data(ttm_sql)
     if not row:
         raise ApiError(code=ApiCode.NORMAL_ERR, msg='查无此帖')
+    _content=compile_content(row.CirclePost.content, row.CirclePost.attachments)
+    print(_content)
 
     data = {
         'id': row.CirclePost.id,
         'title': row.CirclePost.title,
         'content': row.CirclePost.content,
-        'content_compiled': compile_content(row.CirclePost.content, row.CirclePost.attachments),
-        'type': row.CirclePost.type if row.CirclePost.type != 4 else 0,  # 比赛贴转为普通贴
+        'content_compiled': _content,
+        'tags':[{'name':'技术','url':'https://www.baidu.com'}],
         'attachments': row.CirclePost.attachments,
         'total_attachments': row.CirclePost.total_attachments,
         'catalog_id': row.CirclePost.catalog_id,
@@ -139,18 +117,16 @@ async def cat_post(request,post_id):
         'level': row.TtmMember.level,
         'banned': row.TtmMember.banned,
         'vip': row.TtmMember.vip_expire_at > now(),
-        'annual_vip': row.TtmMember.annual_vip_expire_at > now(),
-        'extra': ujson.loads(row.TtmMember.extra) if row.TtmMember.extra else {},
         'deleted': row.CirclePost.deleted,
         'locked': row.CirclePost.locked,
         'picked': row.CirclePost.picked,
         'hidden': row.CirclePost.hidden,
         'total_comments': row.CirclePost.total_comments,
         'total_floors': row.CirclePost.total_floors,
-        'created_at': row.CirclePost.created_at,
-        'params': ujson.loads(row.CirclePost.params) if row.CirclePost.params else {}
+        'created_at': datetime.datetime.fromtimestamp(row.CirclePost.created_at),
+        'pageview':100
     }
-    return json({'code': ApiCode.SUCCESS, 'data': data})
+    return {'post': data}
 
 
 @doc.summary('编辑帖子')
