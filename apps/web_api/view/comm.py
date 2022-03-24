@@ -44,3 +44,28 @@ async def getBannerList(request):
 
 
     return json(bannn)
+
+
+@doc.summary('banner')
+@doc.produces({
+    'code': doc.Integer('状态码'),
+    'msg' : doc.String('消息提示'),
+}, content_type='application/json', description='Request True')
+async def getPartnerList(request):
+
+    ttm_sql = request.app.ttm.get_mysql('ttm_sql')
+    list=[]
+    list.append({
+        'id': 1,
+        'siteDesc': " ",
+        'siteName': "admin",
+        'siteUrl': "http://8.142.187.110/admin",
+        'sort': 5,
+    })
+    bannn={"code":0,"data":{"rows":list,"currentPage":1,"totalPage":1,"currentPageSize":10,"totalCount":9}}
+    # print(bannn)
+    # banner = ujson.loads(bannn)
+
+
+    return json(bannn)
+
