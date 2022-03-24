@@ -73,3 +73,43 @@ async def getTagList(request):
 
 
     return json(bannn)
+
+
+
+@doc.summary('获取推荐文章列表')
+@doc.produces({
+    'code': doc.Integer('状态码'),
+    'msg' : doc.String('消息提示'),
+
+}, content_type='application/json', description='Request True')
+async def getRecommendArticleList(request):
+
+    ttm_sql = request.app.ttm.get_mysql('ttm_sql')
+    list=[]
+    list.append({
+        'abstractContent': "Redis实例默认建立了16个db库，由于不支持自主进行数据库命名所以以dbX的方式命名。默认数据库数量可以修改配置文件的database值来设定。每个db可以理解为“命名空间”，客户端应用可以使用不同的db来存储不同环境的数据。客户端如果没有执行db编号，默认为编号为0的db。最后要注意，Redis集群下只有db0，不支持多db。\n\nRedis的数据都存放在内存中，如果redis服务突然宕机，会造成数据的丢失。为了保证数据的灾难性恢复，redis提供了两种持久化模式，一种是RDB快照（snapshotting），默认开启，另外一种是AOF（append-only-file），默认未开启。",
+        'articleTags': "7",
+        'articleType': 0,
+        'author': "tc",
+        'category': {},
+        'categoryCode': "0001",
+        'categoryId': 1,
+        'coverImageList': [{}],
+        'createTime': "2021-11-08",
+        'disPlayStatus': "published",
+        'editorType': 0,
+        'id': 51,
+        'isRecommend': 1,
+        'publishTime': "2021-11-07 23:47:19",
+        'showStyle': 1,
+        'status': 1,
+        'statusAliaName': "已发布",
+        'title': "redis持久化机制🍂",
+        'updateTime': "2021-11-08",
+    })
+    bannn={"code":0,'data': list,}
+    # print(bannn)
+    # banner = ujson.loads(bannn)
+
+
+    return json(bannn)

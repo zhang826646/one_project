@@ -69,3 +69,30 @@ async def getPartnerList(request):
 
     return json(bannn)
 
+
+@doc.summary('获取音乐')
+@doc.produces({
+    'code': doc.Integer('状态码'),
+    'msg' : doc.String('消息提示'),
+}, content_type='application/json', description='Request True')
+async def getTopMusicList(request):
+
+    ttm_sql = request.app.ttm.get_mysql('ttm_sql')
+    list=[]
+    list.append({
+        'converUrl': "https://pic1.zhimg.com/80/v2-9c112818d98c0f812654e6102fbdd143_720w.jpg?source=1940ef5c",
+        'createOn': "2022-02-13T14:37:54.000+08:00",
+        'id': 7,
+        'singer': "",
+        'sortCode': 0,
+        'title': "白月光与朱砂痣",
+        'totalTime': "",
+        'updateOn': "2022-02-13T14:37:54.000+08:00",
+        'url': "http://file.miaoleyan.com/file/blog/LU9fxRAmuJRuBcvnEVhs0k91V097kaGw",
+    })
+    bannn={"code":0,"data":{"rows":list,"currentPage":1,"totalPage":1,"currentPageSize":10,"totalCount":9}}
+    # print(bannn)
+    # banner = ujson.loads(bannn)
+
+
+    return json(bannn)
