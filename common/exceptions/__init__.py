@@ -1,5 +1,5 @@
 class ApiCode(object):
-    SUCCESS = 0
+    SUCCESS = 200
     # 系统级别错误
     NORMAL_SYSTEM_ERR = 100001  # 普通系统错误
     UNKNOWN_ERR = 100002  # 未知错误
