@@ -23,6 +23,7 @@ from apps import mako
 async def getArticleList(request):
 
     ttm_sql = request.app.ttm.get_mysql('ttm_sql')
+
     list=[]
     list.append({
         'abstractContent': "Spring-data-redis是spring大家族的一部分，提供了在srping应用中通过简单的配置访问redis服务，对reids底层开发包(Jedis, JRedis, and RJC)进行了高度封装，RedisTemplate提供了redis各种操作、异常处理及序列化，支持发布订阅，并对spring 3.1 cache进行了实现。",
@@ -36,7 +37,7 @@ async def getArticleList(request):
         'id': 69,
         'isRecommend': 0,
         'openComment': "",
-        'publishTime': "2022022515",
+        'publishTime': "2022-02-25 15:00",
         'showStyle': 1,
         'title': "RedisTemplate操作Redis",
         'viewCount': "",
