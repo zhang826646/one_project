@@ -6,12 +6,13 @@ from sqlalchemy import and_,or_
 import datetime
 import re
 import ujson
-from common.dao.circle import CirclePost,CircleComment
+from common.dao.circle import CirclePost,CircleCatalog
 from common.dao.member import TtmMember
 from common.exceptions import ApiError,ApiCode
 from common.libs.aio import run_sqlalchemy
-from common.libs.comm import now
+from common.libs.comm import now,total_number
 from apps import mako
+import time
 
 
 @doc.summary('获取文章列表')
@@ -21,35 +22,57 @@ from apps import mako
     'data': {'token': doc.String('Token')}
 }, content_type='application/json', description='Request True')
 async def getArticleList(request):
-
+    page = request.valid_data.get('pageIndex', 1)
+    limit = request.valid_data.get('pageSize', 15)
     ttm_sql = request.app.ttm.get_mysql('ttm_sql')
+    offset = (page - 1) * limit
 
-    list=[]
-    list.append({
-        'abstractContent': "Spring-data-redis是spring大家族的一部分，提供了在srping应用中通过简单的配置访问redis服务，对reids底层开发包(Jedis, JRedis, and RJC)进行了高度封装，RedisTemplate提供了redis各种操作、异常处理及序列化，支持发布订阅，并对spring 3.1 cache进行了实现。",
-        'articleTags': [],
-        'author': "tc",
-        'category': {'id': 69, 'categoryCode': "", 'categoryName': "redis核心知识点", 'fullName': "", 'sort': "",
-                     'parentId': ""},
-        'categoryItems': "",
-        'content': "",
-        'coverImageList': ['http://file.miaoleyan.com/file/blog/UbQAfXZBobKC9c3rnKV8bO5lQDkzetTE'],
-        'id': 69,
-        'isRecommend': 0,
-        'openComment': "",
-        'publishTime': "2022-02-25 15:00",
-        'showStyle': 1,
-        'title': "RedisTemplate操作Redis",
-        'viewCount': "",
+    @run_sqlalchemy()
+    def get_post_data(db_session):
+        return db_session.query(CirclePost, TtmMember,CircleCatalog) \
+            .join(TtmMember, CirclePost.uid == TtmMember.id) \
+            .join(CircleCatalog, CirclePost.catalog_id == CircleCatalog.id) \
+            .offset(offset).limit(limit) \
+            .all()
+
+    rows = await get_post_data(ttm_sql)
+
+    list = []
+    for row in rows:
+        item={
+            'id': row.CirclePost.id,
+            'title': row.CirclePost.title,
+            'abstractContent': row.CirclePost.content,
+            'articleTags': row.CirclePost.tag,
+            'author': "tc",
+            'category': {'id': row.CircleCatalog.id,
+                         'categoryCode': "",
+                         'categoryName': row.CircleCatalog.catalog_name,
+                         'fullName': "",
+                         'sort': "",
+                         'parentId': ""},
+            'categoryItems': "",
+            'content': "",
+            'coverImageList': ['http://file.miaoleyan.com/file/blog/UbQAfXZBobKC9c3rnKV8bO5lQDkzetTE'],
+            'isRecommend': 0,
+            'openComment': "",
+            'publishTime': time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(row.CirclePost.created_at)),
+            'showStyle': 1,
+            'viewCount': "",
+        }
+        list.append(item)
+
+    totalCount = await total_number(ttm_sql, CirclePost.id)
+    return json({
+        "code": 0,
+        "data": {
+            'currentPage': page,
+            'currentPageSize': limit,
+            'rows': list,
+            'totalCount': totalCount,
+            'totalPage': totalCount//totalCount
+        }
     })
-    bannn={"code":0,"data":{'currentPage': 1,'currentPageSize': 10,'rows': list,
-'totalCount': 58,
-'totalPage': 6}}
-    # print(bannn)
-    # banner = ujson.loads(bannn)
-
-
-    return json(bannn)
 
 
 @doc.summary('获取标签列表')
@@ -61,19 +84,21 @@ async def getArticleList(request):
 async def getTagList(request):
 
     ttm_sql = request.app.ttm.get_mysql('ttm_sql')
+    @run_sqlalchemy()
+    def get_catalog_data(db_session):
+        return db_session.query(CircleCatalog).all()
+
+    rows = await get_catalog_data(ttm_sql)
     list=[]
-    list.append({
-        'alia': "python",
-        'color': "#EB6841",
-        'id': "1",
-        'value': "python",
-    })
-    bannn={"code":0,'data': list,}
-    # print(bannn)
-    # banner = ujson.loads(bannn)
+    for row in rows:
+        list.append({
+            'id': row.id,
+            'alia': row.catalog_name,
+            'color': "#EB6841",
+            'value': row.catalog_name,
+        })
 
-
-    return json(bannn)
+    return json({"code":0,'data': list,})
 
 
 
