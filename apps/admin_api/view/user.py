@@ -61,11 +61,7 @@ async def login(request):
     response.cookies['token']['httponly'] = True
     response.cookies['token']['secure'] = True
     response.cookies['token']['samesite'] = None
-    # 记录日志到阿里云服务
-    # ip = get_ipaddr(request)
-    # admin_log = request.app.leisu.get_alilog('admin_log')
-    # op = '用户_登录'
-    # await admin_log.insert_log(user_id=user.id, user_real_name=user.real_name, ip=ip, op=op, path=request.path)
+
     return response
 
 

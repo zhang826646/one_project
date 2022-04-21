@@ -54,7 +54,8 @@ async def login(request):
     token = encrypt_web_token({'uid': ttm_member.id, 'time': now()})
     response = json({
         'code': ApiCode.SUCCESS,
-        'data': {'token': token}
+        'token': token,
+        'msg':'操作成功'
     })
     response.cookies['token'] = token
     response.cookies["token"]['path'] = '/'
