@@ -11,6 +11,12 @@ from sqlalchemy import func
 from common.libs.aio import run_sqlalchemy
 
 
+def to_strtime(key, default=None):
+    try:
+        return time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(key))
+    except (ValueError, TypeError):
+        return default
+
 def to_int(key, default=None):
     try:
         return int(key)

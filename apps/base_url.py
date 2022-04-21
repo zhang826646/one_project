@@ -110,7 +110,7 @@ async def check_health(request):
 
 
 @doc.summary('APP 所有状态接口')
-@base_bp.route('/getRouters', strict_slashes=True)
+@base_bp.route('/con/getRouters', strict_slashes=True)
 async def app_status(request):
     return json(
         {
