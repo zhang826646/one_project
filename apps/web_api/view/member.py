@@ -135,6 +135,23 @@ async def register(request):
     # return item
 
 
+@doc.summary('退出登录')
+@doc.produces({
+    'code': doc.Integer('状态码'),
+    'data': {'status': doc.Boolean}
+}, content_type='application/json', description='Request True')
+async def logout(request):
+    response = json({
+        'code': ApiCode.SUCCESS,
+        'data': {'status': 'True'}
+    })
+    response.cookies['token'] = ''
+    response.cookies['token']['path'] = '/'
+    response.cookies['token']['max-age'] = 0
+    response.cookies['token']['domain'] = '.ttm.com'
+    return response
+
+
 @doc.summary('账号信息')
 @doc.produces({
     'code': doc.Integer('状态码'),
