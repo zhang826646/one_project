@@ -22,9 +22,10 @@ import time
     'data': {'token': doc.String('Token')}
 }, content_type='application/json', description='Request True')
 async def getArticleList(request):
-    page = request.valid_data.get('pageIndex', 1)
-    limit = request.valid_data.get('pageSize', 15)
-    tag = request.valid_data.get('tag')
+    page = request.json.get('pageIndex', 1)
+    limit = request.json.get('pageSize', 15)
+    tag = request.json.get('tag')
+    print(tag)
     ttm_sql = request.app.ttm.get_mysql('ttm_sql')
     offset = (page - 1) * limit
 
@@ -210,6 +211,7 @@ async def getArticleDetail(request,article_id):
         "title": row.CirclePost.title,
         "abstractContent": "",
         "publishTime": to_strtime(row.CirclePost.created_at),
+        'member_id': row.CirclePost.uid,
         "categoryItems": "",
         "articleTags": row.CirclePost.tag,
         "showStyle": 1,
@@ -246,7 +248,7 @@ async def getArticleDetail(request,article_id):
 }, content_type='application/json', description='Request True')
 async def getArticleComment(request,article_id):
     # print(request.__dict__)
-    # article_id = request.valid_data.get('article_id')
+    # article_id = request.json.get('article_id')
     print(article_id)
     ttm_sql = request.app.ttm.get_mysql('ttm_sql')
 
@@ -317,3 +319,51 @@ async def getArticleComment(request,article_id):
             comment_item['replylist'] = reply_list
     print(_comment_list)
     return json({'code': 0, 'data': _comment_list})
+
+
+
+@doc.summary('编辑、创建文章')
+@doc.produces({
+    'code': doc.Integer('状态码'),
+    'msg' : doc.String('消息提示'),
+
+}, content_type='application/json', description='Request True')
+async def saveArticle(request):
+    print(request.json)
+    article_id = request.json.get('id')
+    member_id = request.json.get('member_id')
+    author = request.json.get('author')
+    title = request.json.get('title')
+    isRecommend = request.json.get('isRecommend')
+    openComment = request.json.get('openComment')
+    abstractContent = request.json.get('abstractContent')
+    articleTags = request.json.get('articleTags')
+
+    categoryName = request.json.get('categoryName')
+    content = request.json.get('content')
+    coverImageList = request.json.get('coverImageList')
+    showStyle = request.json.get('showStyle')
+    status = request.json.get('status')
+    title = request.json.get('title')
+
+    ttm_sql = request.app.ttm.get_mysql('ttm_sql')
+
+
+    if not article_id:
+        article=CirclePost()
+        ttm_sql.add(article)
+    else:
+        article =ttm_sql.query(CirclePost).filter(CirclePost.id == article_id).first()
+        if not article:
+            raise ApiError(mag='文章不存在')
+    article.title = title
+    article.content = content
+    article.attachments = ujson.dumps(coverImageList,ensure_ascii=False)
+    article.hidden = status
+    article.uid = member_id
+    article.created_at =now()
+
+    ttm_sql.commit()
+
+
+    return json({'code': 0, 'mag':'保存成功'})

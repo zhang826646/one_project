@@ -9,3 +9,4 @@ article_bp.add_route(article.getRecommendArticleList, '/getRecommendArticleList'
 article_bp.add_route(article.getArticleDetail, '/getArticleDetail/<article_id:int>', name='getArticleDetail')  #文章详情
 # article_bp.add_route(article.getRelevantArticle, '/getRelevantArticle/<article_id:int>', name='getRelevantArticle')  #相关推荐
 article_bp.add_route(article.getArticleComment, '/getArticleComment/<article_id:int>', name='getArticleComment')  #文章详情
+article_bp.add_route(article.saveArticle, '/saveArticle', ['POST'], name='saveArticle')  #保存文章
