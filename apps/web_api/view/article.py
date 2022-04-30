@@ -42,6 +42,7 @@ async def getArticleList(request):
             .join(TtmMember, CirclePost.uid == TtmMember.id) \
             .join(CircleCatalog, CirclePost.catalog_id == CircleCatalog.id) \
             .filter(cond) \
+            .order_by(CirclePost.created_at.desc()) \
             .offset(offset).limit(limit) \
             .all()
 
@@ -196,6 +197,7 @@ async def getRecommendArticleList(request):
 async def getArticleDetail(request,article_id):
 
     ttm_sql = request.app.ttm.get_mysql('ttm_sql')
+    print('++++++++',article_id)
 
     @run_sqlalchemy()
     def get_post_data(db_session):
@@ -203,11 +205,12 @@ async def getArticleDetail(request,article_id):
             .join(TtmMember, CirclePost.uid == TtmMember.id) \
             .join(CircleCatalog, CirclePost.catalog_id == CircleCatalog.id) \
             .filter(CirclePost.id == article_id) \
-            .limit(10) \
             .first()
 
     row = await get_post_data(ttm_sql)
-
+    print(row)
+    if not row :
+        raise ApiError(code= 0, msg='文章不存在')
 
     item =  {
         "id": row.CirclePost.id,
@@ -367,6 +370,13 @@ async def saveArticle(request):
     status = request.json.get('status')
     title = request.json.get('title')
 
+    token = request.cookies.get('Ttm-Token')
+    if not token:
+        raise ApiError(code=0 ,msg='请先登录')
+    token= urllib.parse.unquote(token)
+    user_info = decrypt_web_token(token)
+    uid = user_info.get('uid')
+
     ttm_sql = request.app.ttm.get_mysql('ttm_sql')
 
 
@@ -376,19 +386,22 @@ async def saveArticle(request):
     else:
         article =ttm_sql.query(CirclePost).filter(CirclePost.id == article_id).first()
         if not article:
-            raise ApiError(mag='文章不存在')
-    article.catalog_id=1
+            raise ApiError(code=0,mag='文章不存在')
+    article.catalog_id = 1
     article.title = title
     article.content = content
     article.attachments = ujson.dumps(coverImageList,ensure_ascii=False)
     article.hidden = status
-    article.uid = member_id
+    article.uid = uid or member_id
     article.created_at =now()
 
     ttm_sql.commit()
 
-
-    return json({'code': 0, 'mag':'保存成功'})
+    data={
+        'article_id' : article.id,
+        'member_id'  : article.uid
+    }
+    return json({'code': 0,'data':data, 'mag':'保存成功'})
 
 
 @doc.summary('编辑、创建文章')
@@ -403,7 +416,7 @@ async def addComment(request):
     print(token)
 
     if not token:
-        raise ApiError(msg='请先登录')
+        raise ApiError(code=0,msg='请先登录')
     token= urllib.parse.unquote(token)
     user_info = decrypt_web_token(token)
 
