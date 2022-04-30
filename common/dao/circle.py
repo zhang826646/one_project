@@ -31,6 +31,7 @@ class CircleComment(BaseModel):
     id = Column(Integer, primary_key=True)
     post_id = Column(Integer, comment='帖子ID')
     uid = Column(Integer, comment='用户ID')
+    to_uid = Column(Integer, comment='用户ID')
     floor = Column(SmallInteger, default=0, comment='第几楼层')
     parent_id = Column(SmallInteger, default=0, comment='父级评论ID')
     content = Column(Text(), nullable=True, default=0, comment='评论内容')

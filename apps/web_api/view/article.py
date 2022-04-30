@@ -5,6 +5,9 @@ from typing import Dict, List, Tuple, Union
 from sqlalchemy import and_,or_
 import datetime
 import re
+from sqlalchemy.sql.operators import *
+from common.libs.tokenize_util import encrypt_web_token,decrypt_web_token
+import urllib
 import ujson
 from common.dao.circle import CirclePost,CircleCatalog,CircleComment
 from common.dao.member import TtmMember
@@ -260,17 +263,31 @@ async def getArticleComment(request,article_id):
             .limit(10) \
             .all()
 
+    rows = await get_post_data(ttm_sql)
+    user_ids=[x.CircleComment.to_uid for x in rows]
+
+    @run_sqlalchemy()
+    def get_member_data(db_session):
+        return db_session.query(TtmMember) \
+            .filter(TtmMember.id.in_(user_ids)) \
+            .all()
+
+    member_rows = await get_member_data(ttm_sql)
+    member_dict={i.id:i.name for i in member_rows}
+    print(member_dict)
+
     _comment_list = []
     reply_list_dict = {}
 
-    rows = await get_post_data(ttm_sql)
+
     comment_id_list = []
     comment_like_dict = {}
 
 
     for row in rows:
         comment_id_list.append(row.CircleComment.id)
-        print(row.CircleComment.id)
+
+
         if row.CircleComment.parent_id == 0:
             comment_item = {
                 'id'               : row.CircleComment.id,
@@ -279,6 +296,7 @@ async def getArticleComment(request,article_id):
                 'createtime'       : to_strtime(row.CircleComment.created_at),
                 'uid'              : row.CircleComment.uid,
                 'usernickname'             : row.TtmMember.name if row.TtmMember else '',
+                'tousernickname' :member_dict.get( row.CircleComment.uid),
                 'useravatar'           : f'https://wpimg.wallstcn.com/f778738c-e4f8-4870-b634-56703b4acafe.gif',
                 'total_attachments': row.CircleComment.total_attachments,
                 'total_replies'    : row.CircleComment.total_replies,
@@ -289,6 +307,7 @@ async def getArticleComment(request,article_id):
             }
             _comment_list.append(comment_item)
         else:
+
             reply_item = {
                 'id'               : row.CircleComment.id,
                 'floor'            : row.CircleComment.floor,
@@ -296,6 +315,7 @@ async def getArticleComment(request,article_id):
                 'createtime'       : to_strtime(row.CircleComment.created_at),
                 'uid'              : row.CircleComment.uid,
                 'usernickname'             : row.TtmMember.name if row.TtmMember else '',
+                'tousernickname': member_dict.get(row.CircleComment.uid),
                 'useravatar'           : f'https://wpimg.wallstcn.com/f778738c-e4f8-4870-b634-56703b4acafe.gif',
                 'total_attachments': row.CircleComment.total_attachments,
                 'like'             : 0,
@@ -313,7 +333,8 @@ async def getArticleComment(request,article_id):
         # comment_item['like'] = comment_like_dict.get(comment_item['id'])
         if comment_item['id'] in reply_list_dict:
             reply_list = reply_list_dict[comment_item['id']]
-            reply_list = sorted(reply_list, key=lambda x: x['created_at'])
+            reply_list = sorted(reply_list, key=lambda x: x['id'])
+            print()
             # for reply_item in reply_list:
             #     reply_item['like'] = comment_like_dict.get(reply_item['id'])
             comment_item['replylist'] = reply_list
@@ -356,12 +377,57 @@ async def saveArticle(request):
         article =ttm_sql.query(CirclePost).filter(CirclePost.id == article_id).first()
         if not article:
             raise ApiError(mag='文章不存在')
+    article.catalog_id=1
     article.title = title
     article.content = content
     article.attachments = ujson.dumps(coverImageList,ensure_ascii=False)
     article.hidden = status
     article.uid = member_id
     article.created_at =now()
+
+    ttm_sql.commit()
+
+
+    return json({'code': 0, 'mag':'保存成功'})
+
+
+@doc.summary('编辑、创建文章')
+@doc.produces({
+    'code': doc.Integer('状态码'),
+    'msg' : doc.String('消息提示'),
+
+}, content_type='application/json', description='Request True')
+async def addComment(request):
+    print(request.json)
+    token = request.cookies.get('Ttm-Token')
+    print(token)
+
+    if not token:
+        raise ApiError(msg='请先登录')
+    token= urllib.parse.unquote(token)
+    user_info = decrypt_web_token(token)
+
+    article_id = request.json.get('article_id')
+    touseruuid= request.json.get('touseruuid')
+    pid = request.json.get('pid')
+
+    content = request.json.get('content')
+
+    ttm_sql = request.app.ttm.get_mysql('ttm_sql')
+
+    if not article_id:
+        raise ApiError(msg='参数错误')
+
+
+    comment = CircleComment()
+    comment.post_id = article_id
+    comment.uid = user_info.get('uid')
+    comment.to_uid = touseruuid if pid and touseruuid else user_info.get('uid')
+    comment.parent_id = pid
+    comment.content = content
+    comment.created_at = now()
+    ttm_sql.add(comment)
+
 
     ttm_sql.commit()
 

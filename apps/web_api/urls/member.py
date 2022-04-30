@@ -9,4 +9,4 @@ member_bp.add_route(member.logout, '/logout', ['POST'], name='logout')  #退出�
 member_bp.add_route(member.get_detail, '/get_detail', ['POST'], name='get_detail')  # 账号信息
 member_bp.add_route(member.up_detail, '/up_detail', ['POST'], name='up_detail')  #修改账号信息
 member_bp.add_route(member.up_passwd, '/up_passwd', ['POST'], name='up_passwd')  #修改密码
-
+member_bp.add_route(member.getInfo, '/getInfo', name='getInfo')  #用户信息

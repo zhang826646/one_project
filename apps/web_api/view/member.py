@@ -1,9 +1,11 @@
+import urllib.parse
+
 from sanic_openapi import doc
 from sanic.response import json
 from common.dao.member import TtmMember
 from common.helper.validator_helper import validate_params, IntegerField, CharField, ListField
 from common.exceptions import ApiError,ApiCode
-from common.libs.tokenize_util import encrypt_web_token
+from common.libs.tokenize_util import encrypt_web_token,decrypt_web_token
 from common.libs.aio import run_sqlalchemy
 from common.libs.comm import now
 from apps import mako,render_template
@@ -240,3 +242,55 @@ async def up_passwd(request, uid):
     member.password = bcrypt.hashpw(password.encode(), bcrypt.gensalt(10))
     ttm_sql.commit()
     return json({'code': ApiCode.SUCCESS, 'msg': '保存成功'})
+
+
+@doc.summary('用户信息')
+@doc.produces({
+    'code': doc.Integer('状态码'),
+    'msg' : doc.String('消息提示'),
+    'data': {
+        'id'       : doc.Integer('用户 ID'),
+        'name'     : doc.String('用户名'),
+        'real_name': doc.String('姓名'),
+        'role'     : {
+            'id'             : doc.Integer('用户组 ID'),
+            'name'           : doc.String('用户组 键名'),
+            'description'    : doc.String('用户组 描述'),
+            'active'         : doc.String('激活 [0:暂停|1:正常]'),
+            'permission_list': doc.List(doc.String('权限'))
+        }
+    }
+}, content_type='application/json', description='Request True')
+# @route_acl('user_user_info', acl_required=False)
+async def getInfo(request):
+    ttm_sql = request.app.ttm.get_mysql('ttm_sql')
+    # print(request.args.get('0'))
+    print(request.cookies)
+    # print(request.headers.get('cookie'))
+    # token=request.headers['cookie']
+    token = request.cookies.get('Ttm-Token')
+    print(token)
+
+    if not token:
+        raise ApiError()
+    token= urllib.parse.unquote(token)
+    user_info = decrypt_web_token(token)
+    print('__________', user_info)
+    print(user_info.get('uid'))
+    uid = user_info.get('uid')
+
+    @run_sqlalchemy()
+    def get_user_data(db_session):
+        return db_session.query(TtmMember).filter(TtmMember.id == uid).first()
+
+    user = await get_user_data(ttm_sql)
+    if not user:
+        raise ApiError(code=200, msg='用户不存在')
+
+    data = {
+        'uid'       : user.id,
+        'name'     : user.name,
+        'avatar': f'https://wpimg.wallstcn.com/f778738c-e4f8-4870-b634-56703b4acafe.gif',
+
+    }
+    return json({'code': ApiCode.SUCCESS, 'data': data})
