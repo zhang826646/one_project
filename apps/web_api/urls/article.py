@@ -10,4 +10,5 @@ article_bp.add_route(article.getArticleDetail, '/getArticleDetail/<article_id:in
 # article_bp.add_route(article.getRelevantArticle, '/getRelevantArticle/<article_id:int>', name='getRelevantArticle')  #相关推荐
 article_bp.add_route(article.getArticleComment, '/getArticleComment/<article_id:int>', name='getArticleComment')  #获取评论
 article_bp.add_route(article.saveArticle, '/saveArticle', ['POST'], name='saveArticle')  #保存文章
+article_bp.add_route(article.stateArticle, '/stateArticle', ['POST'], name='stateArticle')  #删除/隐藏文章
 article_bp.add_route(article.addComment, '/addComment', ['POST'], name='addComment')  #保存评论

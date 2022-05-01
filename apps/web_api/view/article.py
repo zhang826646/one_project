@@ -28,6 +28,7 @@ async def getArticleList(request):
     page = request.json.get('pageIndex', 1)
     limit = request.json.get('pageSize', 15)
     tag = request.json.get('tag')
+    is_me = request.json.get('is_me')
     print(tag)
     ttm_sql = request.app.ttm.get_mysql('ttm_sql')
     offset = (page - 1) * limit
@@ -35,6 +36,16 @@ async def getArticleList(request):
     cond = True
     if tag:
         cond = CirclePost.tag == tag
+    if is_me:
+        token = request.cookies.get('Ttm-Token')
+        if not token:
+            raise ApiError(code=0, msg='请先登录')
+        token = urllib.parse.unquote(token)
+        user_info = decrypt_web_token(token)
+        uid = user_info.get('uid')
+        print(uid,type(uid))
+        cond = CirclePost.uid == uid
+
 
     @run_sqlalchemy()
     def get_post_data(db_session):
@@ -52,7 +63,10 @@ async def getArticleList(request):
     for row in rows:
         item={
             'id': row.CirclePost.id,
+            'uid':row.CirclePost.uid,
             'title': row.CirclePost.title,
+            'deleted':row.CirclePost.deleted,
+             'hidden':row.CirclePost.hidden,
             'abstractContent': row.CirclePost.content,
             'articleTags': row.CirclePost.tag,
             'author': row.TtmMember.name,
@@ -404,7 +418,33 @@ async def saveArticle(request):
     return json({'code': 0,'data':data, 'mag':'保存成功'})
 
 
-@doc.summary('编辑、创建文章')
+@doc.summary('删除隐藏文章')
+@doc.produces({
+    'code': doc.Integer('状态码'),
+    'msg' : doc.String('消息提示'),
+
+}, content_type='application/json', description='Request True')
+async def stateArticle(request):
+    print(request.json)
+    article_id = request.json.get('article_id')
+    deleted = request.json.get('deleted')
+    hidden = request.json.get('hidden')
+
+    ttm_sql = request.app.ttm.get_mysql('ttm_sql')
+
+    article = ttm_sql.query(CirclePost).filter(CirclePost.id == article_id).first()
+    if not article:
+        raise ApiError(code=0,msg='文章不存在')
+
+    article.deleted = deleted
+    article.hidden = hidden
+
+    ttm_sql.commit()
+
+    return json({'code': 0, 'mag':'操作成功'})
+
+
+@doc.summary('创建评论')
 @doc.produces({
     'code': doc.Integer('状态码'),
     'msg' : doc.String('消息提示'),
