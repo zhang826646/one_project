@@ -138,6 +138,7 @@ def encrypt_web_token(data):
 # 解密web端token
 @lru_cache(maxsize=1000000)
 def decrypt_web_token(token):
+    print(token)
     try:
         key = bytes.fromhex('6a28e3b4d8d899cf70b74075ac63fbc8')
         token = urllib.parse.unquote_plus(token)
@@ -197,12 +198,19 @@ def decrypt_admin_token(token):
 
 
 if __name__ == '__main__':
-    r = decrypt_app_token('Assivk6kX8bcPctSThHJLJWfOfBHL3x2BdinMK7OiKgfMQ+LjO3Wx3HA6M1PZAe28pniV/175G1d')
+
+    # 'AjV7c4dAy0KZeFh1p7Z%2BKZEVvUsxnO8iqNDvRU8GHeJB7ZuooC2Ruk3deg626dzw3Jhhoe0Z74CQ%2FYFxaWrH0mK8De110IA5vA%3D%3D'
+    # 'AoiibfTsTmc4xBKZFlieKmhfWUY94Do147JX0qcy7Q%252F7l%252Fy9xtJZjFp3CR2xL5dNjEfTnYBaLRtJ7wCoHR00ZrOf2Avc2ceoNg%253D%253D'
+    # 'AjV7c4dAy0KZeFh1p7Z%2BKZEVvUsxnO8iqNDvRU8GHeJB7ZuooC2Ruk3deg626dzw3Jhhoe0Z74CQ%2FYFxaWrH0mK8De110IA5vA%3D%3D'
+    'AgWQfG8tBk3A3AhquTtlmboZMXBfobwKsbzBVpOMZq8LFprjGA39KMPV55THs8NS6sJd3CDbH1tHXz7hnUsoZxds32E51EM0JA%253D%253D'
+    'AgWQfG8tBk3A3AhquTtlmboZMXBfobwKsbzBVpOMZq8LFprjGA39KMPV55THs8NS6sJd3CDbH1tHXz7hnUsoZxds32E51EM0JA%3D%3D'
+
+    r = decrypt_web_token('AgWQfG8tBk3A3AhquTtlmboZMXBfobwKsbzBVpOMZq8LFprjGA39KMPV55THs8NS6sJd3CDbH1tHXz7hnUsoZxds32E51EM0JA%3D%3D')
     print(r)
     # r = decrypt_v1('AS+Gj0W\\/sAiyXkiRHd9jINNDQz11uq0w0TKSz1Iu0P7yij9uw70CbFqYwLvtt7o+3kk\\/T1Um+9fuuDcTD\\/8=')
     # print(r)
-    t = encrypt_app_token({'uid': 3995418, 'time': 1635494783, 'v': 2})
-    print(t)
+    # t = encrypt_app_token({'uid': 3995418, 'time': 1635494783, 'v': 2})
+    # print(t)
     # d = decrypt_v1(t)
     # print(d)
     # d = decrypt_v2(t)

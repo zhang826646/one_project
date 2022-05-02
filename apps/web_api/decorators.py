@@ -1,7 +1,7 @@
 from functools import wraps
 from datetime import datetime
 from http.cookies import CookieError
-
+import urllib.parse
 from common.exceptions import NotLoginError
 from common.libs.tokenize_util import decrypt_web_token
 
@@ -13,9 +13,12 @@ def authorized():
             uid = 0
             login_time = 0
             try:
-                token = request.cookies.get('LWT')
+                token = request.cookies.get('Ttm-Token')
+                token = urllib.parse.unquote(token)
+
                 if token:
                     data = decrypt_web_token(token)
+
                     if data:
                         uid = data['uid']
                         login_time = data.get('time', 0)
@@ -23,7 +26,7 @@ def authorized():
                     raise NotLoginError()
             except CookieError:
                 pass
-            print(uid)
+
             kwargs['uid'] = uid
             # request['uid'] = uid
             response = await f(request, *args, **kwargs)

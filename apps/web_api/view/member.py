@@ -7,10 +7,10 @@ from common.helper.validator_helper import validate_params, IntegerField, CharFi
 from common.exceptions import ApiError,ApiCode
 from common.libs.tokenize_util import encrypt_web_token,decrypt_web_token
 from common.libs.aio import run_sqlalchemy
-from common.libs.comm import now
-from apps import mako,render_template
+from common.libs.comm import now, total_number, to_strtime
+from apps import mako, render_template
 from typing import Dict, List, Tuple, Union
-from sqlalchemy import and_,or_
+from sqlalchemy import and_, or_
 import bcrypt
 import datetime
 import re
@@ -198,23 +198,30 @@ async def get_detail(request, uid):
     CharField(name='email',required=False, allow_empty=False),
 )
 @authorized()
-async def up_detail(request, uid):
-    name = request.valid_data.get('name')
-    phone = request.valid_data.get('phone')
-    email = request.valid_data.get('email')
-    avatar = request.valid_data.get('avatar')
+async def up_detail(request,uid):
+    name = request.json.get('name')
+    phone = request.json.get('phone')
+    email = request.json.get('email')
+    avatar = request.json.get('avatar')
     ttm_sql = request.app.ttm.get_mysql('ttm_sql')
+    # token = request.cookies.get('Ttm-Token')
+    # if not token:
+    #     raise ApiError()
+    # token = urllib.parse.unquote(token)
+    # user_info = decrypt_web_token(token)
+    # uid = user_info.get('uid')
 
     member = ttm_sql.query(TtmMember).filter(TtmMember.id == uid).first()
-
+    print(member.name)
     if member:
         if name:
-            member.name=name
+            member.name = name
         if email:
-            member.email=email
+            member.email = email
         if avatar:
-            member.avatar=avatar
-    ttm_sql.commit()
+            pass
+            # member.avatar = avatar
+        ttm_sql.commit()
     return json({'code': ApiCode.SUCCESS, 'msg': '保存成功'})
 
 
@@ -245,38 +252,22 @@ async def up_passwd(request, uid):
 
 
 @doc.summary('用户信息')
-@doc.produces({
-    'code': doc.Integer('状态码'),
-    'msg' : doc.String('消息提示'),
-    'data': {
-        'id'       : doc.Integer('用户 ID'),
-        'name'     : doc.String('用户名'),
-        'real_name': doc.String('姓名'),
-        'role'     : {
-            'id'             : doc.Integer('用户组 ID'),
-            'name'           : doc.String('用户组 键名'),
-            'description'    : doc.String('用户组 描述'),
-            'active'         : doc.String('激活 [0:暂停|1:正常]'),
-            'permission_list': doc.List(doc.String('权限'))
-        }
-    }
-}, content_type='application/json', description='Request True')
 # @route_acl('user_user_info', acl_required=False)
 async def getInfo(request):
     ttm_sql = request.app.ttm.get_mysql('ttm_sql')
     # print(request.args.get('0'))
-    print(request.cookies)
+    # print(request.cookies)
     # print(request.headers.get('cookie'))
     # token=request.headers['cookie']
     token = request.cookies.get('Ttm-Token')
-    print(token)
+    # print(token)
 
     if not token:
         raise ApiError()
     token= urllib.parse.unquote(token)
     user_info = decrypt_web_token(token)
-    print('__________', user_info)
-    print(user_info.get('uid'))
+    # print('__________', user_info)
+    # print(user_info.get('uid'))
     uid = user_info.get('uid')
 
     @run_sqlalchemy()
@@ -291,6 +282,11 @@ async def getInfo(request):
         'uid'       : user.id,
         'name'     : user.name,
         'avatar': f'https://wpimg.wallstcn.com/f778738c-e4f8-4870-b634-56703b4acafe.gif',
-
+        'email': user.email,
+        'phone': user.phone,
+        'level': user.level,
+        'money_nwdbl': str(user.money_nwdbl + user.money_wdbl),
+        'created_at': to_strtime(user.created_at),
+        'sex':'1'
     }
     return json({'code': ApiCode.SUCCESS, 'data': data})
