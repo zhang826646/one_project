@@ -23,9 +23,8 @@ from common.dao.member import TtmMember
         'page'          : doc.Integer('页码'),
         'limit'         : doc.Integer('每页条数'),
         'catalog_id'    : doc.Integer('版块ID'),
-        'type'          : doc.Integer('类型[1技术|2生活]'),
-        'search_field'  : doc.String('搜索字段[id:帖子ID|uid:发帖人id|title:标题|content:内容|created_at:发布时间]'),
-        'search_keyword': doc.String('搜索值[created_at:"1569859200|1569945600"'),
+        'postName'      : doc.String('帖子标题'),
+        'status'  : doc.String('状态'),
     }), content_type='application/json', location='body', required=True
 )
 @validate_params(
@@ -37,40 +36,28 @@ from common.dao.member import TtmMember
     CharField(name='search_keyword', required=False),
 )
 async def article_list(request):
-    page = request.valid_data.get('page', 1)
-    limit = request.valid_data.get('limit', 15)
-    catalog_id = request.valid_data.get('catalog_id')
-    _type = request.valid_data.get('type')
-    search_field = request.valid_data.get('search_field')
-    search_keyword = request.valid_data.get('search_keyword')
+    page = request.json.get('pageNum', 1)
+    limit = request.json.get('pageSize', 15)
+    a_id = request.json.get('postCode')
+    title = request.json.get('postName')
+    status = request.json.get('status')
+
 
     offset = (page - 1) * limit
     lists = []
 
     ttm_sql = request.app.ttm.get_mysql('ttm_sql')
 
-    search_cond = True
-    if search_keyword:
-        if search_field == 'id':  # 搜索ID
-            search_cond = and_(search_cond, CirclePost.id == to_int(search_keyword))
-        elif search_field == 'uid':  # 搜索发帖人
-            search_cond = and_(search_cond, CirclePost.uid == to_int(search_keyword))
-        elif search_field == 'title':  # 搜索标题
-            search_cond = and_(search_cond, CirclePost.title.like(f'%{search_keyword}%'))
-        elif search_field == 'content':  # 搜索内容
-            search_cond = and_(search_cond, CirclePost.content.like(f'%{search_keyword}%'))
-        elif search_field == 'created_at':
-            created_at = search_keyword.split('|')
-            if len(created_at) != 2:
-                created_at = [0, 0]
-            search_cond = CirclePost.created_at.between(to_int(created_at[0], 0), to_int(created_at[1], 0))
+    cond = True
 
-    if catalog_id:
-        catalog_id_cond = CirclePost.catalog_id == catalog_id
-    else:
-        catalog_id_cond = True
+    if a_id:
+        cond = CirclePost.id == a_id
+    if title:
+        cond = CirclePost.title.like(f'%{title}%')
+    if status:
+        cond = CirclePost.deleted == status
 
-    cond = and_(search_cond, catalog_id_cond)
+
 
     # cond = and_(cond, CirclePost.type != 1)
 
@@ -86,6 +73,7 @@ async def article_list(request):
     rows = await get_post_list_data(ttm_sql)
 
     for row in rows:
+
         lists.append({
             'id'               : row.CirclePost.id,
             'catalog_id'       : row.CirclePost.catalog_id,
@@ -96,7 +84,7 @@ async def article_list(request):
             'level'            : row.TtmMember.level,
             'banned'           : row.TtmMember.banned,
             'vip'              : row.TtmMember.vip_expire_at > now(),
-            'title'            : row.CirclePost.title,
+            'title'            : row.CirclePost.title[:16]+'...' if len(row.CirclePost.title) > 16 else row.CirclePost.title ,
             'content'          : row.CirclePost.content,
             'deleted'          : row.CirclePost.deleted,
             'locked'           : row.CirclePost.locked,
@@ -148,14 +136,14 @@ async def article_list(request):
 
 )
 async def save_article(request):
-    article_id = request.valid_data.get('article_id')
-    title = request.valid_data.get('title')
-    article_type = request.valid_data.get('type')
-    tag = request.valid_data.get('tag')
-    uid = request.valid_data.get('uid')
-    content_compiled = request.valid_data.get('content_compiled')
-    catalog_id = request.valid_data.get('catalog_id')
-    summary = request.valid_data.get('summary')
+    article_id = request.json.get('article_id')
+    title = request.json.get('title')
+    article_type = request.json.get('type')
+    tag = request.json.get('tag')
+    uid = request.json.get('uid')
+    content_compiled = request.json.get('content_compiled')
+    catalog_id = request.json.get('catalog_id')
+    summary = request.json.get('summary')
     atta_key = []
 
     async def _decompile_content(compiled):
@@ -259,38 +247,6 @@ async def save_article(request):
 async def article_detali(request, article_id):
     ttm_sql = request.app.ttm.get_mysql('ttm_sql')
 
-    def compile_content(content, attachments):
-        """
-        将帖子内容与图片编码为HTML
-        :param content: 帖子内容
-        :param attachments: 帖子图片 p1#group/attachments/FqXPGSso5Kf3PmtBR2RBkPmkytRJ#image/jpeg#828#1792
-        :return: HTML <img> 标签
-        """
-        attachments_dict = {}
-        if attachments:
-            attachments_list = attachments.split('|')
-            for _item in attachments_list:
-                attachment_data = _item.split('#')
-                if attachment_data[1] != 'None':
-                    attachments_dict[attachment_data[0]] = attachment_data
-
-        def repl(word):
-            name = word.group(1)
-            if name in attachments_dict:
-                # url = f'{cdn_url}{attachments_dict[name][1]}'
-                url=''
-                key = attachments_dict[name][1]
-                mime_type = attachments_dict[name][2]
-                width = attachments_dict[name][3]
-                height = attachments_dict[name][4]
-                return f'<img src="{url}" class="attachment" data-key="{key}" ' \
-                       f'data-mime-type="{mime_type}" data-width="{width}" data-height="{height}">'
-            return ''
-
-        compiled = re.sub(r'{{([^}]*)}}', repl, content)  # 替换{{p1}} 为img标签
-        compiled = re.sub(r'([^\r\n]*)?(\r\n|\r|\n)?', '<p>\g<1></p>', compiled)  # 替换回车为 </br>
-        return compiled
-
     @run_sqlalchemy()
     def get_post_detail_data(db_session):
         return db_session.query(CirclePost, TtmMember) \
@@ -306,7 +262,6 @@ async def article_detali(request, article_id):
         'id'               : row.CirclePost.id,
         'title'            : row.CirclePost.title,
         'content'          : row.CirclePost.content,
-        'content_compiled' : compile_content(row.CirclePost.content, row.CirclePost.attachments),
         'type'             : row.CirclePost.type if row.CirclePost.type != 4 else 0,  # 比赛贴转为普通贴
         'attachments'      : row.CirclePost.attachments,
         'total_attachments': row.CirclePost.total_attachments,
@@ -339,9 +294,9 @@ async def article_detali(request, article_id):
     CharField(name='reason', required=False)
 )
 async def delete_article(request):
-    post_id_list = request.valid_data.get('post_id_list')
-    deleted = request.valid_data.get('deleted')
-    reason = request.valid_data.get('reason', '')
+    post_id_list = request.json.get('post_id_list')
+    deleted = request.json.get('deleted')
+    reason = request.json.get('reason', '')
     ttm_sql = request.app.ttm.get_mysql('ttm_sql')
 
     posts = ttm_sql.query(CirclePost).filter(CirclePost.id.in_(post_id_list)).all()

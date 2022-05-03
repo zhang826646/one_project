@@ -167,25 +167,25 @@ async def app_status(request):
                         #         "link": None
                         #     }
                         # },
-                        {
-                            "name": "Dept",
-                            "path": "dept",
-                            "hidden": False,
-                            "component": "system/dept/index",
-                            "meta": {
-                                "title": "部门管理",
-                                "icon": "tree",
-                                "noCache": False,
-                                "link": None
-                            }
-                        },
+                        # {
+                        #     "name": "Dept",
+                        #     "path": "dept",
+                        #     "hidden": False,
+                        #     "component": "system/dept/index",
+                        #     "meta": {
+                        #         "title": "部门管理",
+                        #         "icon": "tree",
+                        #         "noCache": False,
+                        #         "link": None
+                        #     }
+                        # },
                         {
                             "name": "Post",
                             "path": "post",
                             "hidden": False,
                             "component": "system/post/index",
                             "meta": {
-                                "title": "岗位管理",
+                                "title": "文章管理",
                                 "icon": "post",
                                 "noCache": False,
                                 "link": None
