@@ -22,6 +22,8 @@ class TtmMember(BaseModel):
     vip_expire_at = Column(Integer, default=0, comment='vip过期时间')
     created_at = Column(Integer(), default=now, comment='注册时间')
     updated_at = Column(Integer(), default=now, comment='更新时间')
+    sex = Column(Integer, default=1, comment='性别 0：女 1:男')
+    remark = Column(String(255), default='', comment='简介')
 
 
 

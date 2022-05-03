@@ -143,30 +143,30 @@ async def app_status(request):
                                 "link": None
                             }
                         },
-                        {
-                            "name": "Role",
-                            "path": "role",
-                            "hidden": False,
-                            "component": "system/role/index",
-                            "meta": {
-                                "title": "角色管理",
-                                "icon": "peoples",
-                                "noCache": False,
-                                "link": None
-                            }
-                        },
-                        {
-                            "name": "Menu",
-                            "path": "menu",
-                            "hidden": False,
-                            "component": "system/menu/index",
-                            "meta": {
-                                "title": "菜单管理",
-                                "icon": "tree-table",
-                                "noCache": False,
-                                "link": None
-                            }
-                        },
+                        # {
+                        #     "name": "Role",
+                        #     "path": "role",
+                        #     "hidden": False,
+                        #     "component": "system/role/index",
+                        #     "meta": {
+                        #         "title": "角色管理",
+                        #         "icon": "peoples",
+                        #         "noCache": False,
+                        #         "link": None
+                        #     }
+                        # },
+                        # {
+                        #     "name": "Menu",
+                        #     "path": "menu",
+                        #     "hidden": False,
+                        #     "component": "system/menu/index",
+                        #     "meta": {
+                        #         "title": "菜单管理",
+                        #         "icon": "tree-table",
+                        #         "noCache": False,
+                        #         "link": None
+                        #     }
+                        # },
                         {
                             "name": "Dept",
                             "path": "dept",

@@ -19,21 +19,13 @@ from common.helper.validator_helper import validate_params, IntegerField, CharFi
 
 
 @doc.summary('用户列表')
-@validate_params(
-    IntegerField(name='page', required=False, min_value=1),
-    IntegerField(name='limit', required=False, min_value=1),
-    IntegerField(name='banned', required=False, nullable=True),
-    IntegerField(name='search_type', required=False, nullable=True),
-    CharField(name='search_field', required=False, allow_empty=True),
-    CharField(name='search_keyword', required=False, allow_empty=True),
-)
 async def member_list(request):
-    page = request.valid_data.get('page', 1)
-    limit = request.valid_data.get('limit', 15)
-    banned = request.valid_data.get('banned')
-    search_type = request.valid_data.get('search_type')
-    search_field = request.valid_data.get('search_field')
-    search_keyword = request.valid_data.get('search_keyword')
+    page = request.json.get('pageNum', 1)
+    limit = request.json.get('pageSize', 15)
+    banned = request.json.get('banned')
+    userName = request.json.get('userName')
+    phonenumber = request.json.get('phonenumber')
+    status = request.json.get('status')
     offset = (page - 1) * limit
     lists = []
 
@@ -41,27 +33,15 @@ async def member_list(request):
 
     # 条件筛选
     search_cond = True
-    if search_field and search_keyword:
-        if search_field == 'uid':
-            search_cond = TtmMember.id == to_int(search_keyword)
+    if userName:
+        search_cond = TtmMember.name.like(f'%{userName}%')
+    elif phonenumber:
+            search_cond = TtmMember.phone == phonenumber
 
-        elif search_field == 'name':
-            if search_type == 0:  # 精确查找
-                search_cond = TtmMember.name == search_keyword
-            else:  # 模糊查找
-                search_cond = TtmMember.name.like(f'%{search_keyword}%')
-        elif search_field == 'phone':
-            if search_type == 0:
-                search_cond = TtmMember.phone == search_keyword
-            else:
-                search_cond = TtmMember.phone.like(f'%{search_keyword}%')
 
     # 封禁状态筛选
-    if banned == 0:  # 只看正常账号
-        search_cond = and_(search_cond, TtmMember.banned == 0)
-    elif banned == 1:  # 只看封禁账号
-        search_cond = and_(search_cond, TtmMember.banned == 1)
-
+    if status:  # 只看正常账号
+        search_cond = and_(search_cond, TtmMember.banned == status)
 
     orderby_cond = TtmMember.id.desc()
 
@@ -78,61 +58,152 @@ async def member_list(request):
 
     for row in rows:
         lists.append({
-            'uid'              : row.id,
-            'name'             : row.name,
+            'userId'              : row.id,
+            'userName'             : row.name,
+            'nickName': row.name,
             'avatar'           : r'https://wpimg.wallstcn.com/f778738c-e4f8-4870-b634-56703b4acafe.gif',
             'level'            : row.level,
-            'phone'            : '***********' if row.phone else '',
-            'banned'           : row.banned,
+            'phonenumber'            : row.phone if row.phone else '',
+            'status'           : str(row.banned),
             'vip'              : row.vip_expire_at > now(),
             'money_nwdbl'      : row.money_nwdbl,
             'money_wdbl'       : row.money_wdbl,
             'created_at'       : row.created_at,
 
         })
-
+    total = await total_number(ttm_sql,TtmMember.id ,search_cond)
     data = {
         'code'        : ApiCode.SUCCESS,
         'current_page': page,
         'page_size'   : limit,
-        'total'       : 10,
+        'total'       : total,
         'data'        : lists,
     }
+    print(data)
+    return json(data)
+
+@doc.summary('用户列表')
+async def detail(request,id):
+
+    ttm_sql = request.app.ttm.get_mysql('ttm_sql')
+
+    # 条件筛选
+    search_cond = TtmMember.id == id
+
+    search_cond = and_(search_cond, TtmMember.banned == 0)
+
+
+
+    @run_sqlalchemy()
+    def get_member_list_data(db_session):
+        return db_session.query(TtmMember) \
+            .filter(search_cond) \
+            .first()
+
+    row = await get_member_list_data(ttm_sql)
+
+    lists={
+        'userId'              : row.id,
+        'userName'             : row.name,
+        'nickName': row.name,
+        'avatar'           : r'https://wpimg.wallstcn.com/f778738c-e4f8-4870-b634-56703b4acafe.gif',
+        'level'            : row.level,
+        'phonenumber'            : row.phone if row.phone else '',
+        'status'           : row.banned,
+        'email':row.email,
+        'sex': row.sex,
+        'remark': row.remark,
+        'vip'              : row.vip_expire_at > now(),
+        'money_nwdbl'      : row.money_nwdbl,
+        'money_wdbl'       : row.money_wdbl,
+        'created_at'       : row.created_at,
+
+    }
+
+    data = {
+        'code'        : ApiCode.SUCCESS,
+        'data'        : lists,
+    }
+    print(data)
     return json(data)
 
 
-@doc.summary('添加新用户')
-@validate_params(
-    CharField(name='name'),
-    CharField(name='avatar', required=False, allow_empty=True),
-    CharField(name='zone', required=False, allow_empty=True),
-    CharField(name='phone'),
-    CharField(name='password'),
-    CharField(name='email', required=False)
-)
-async def add_member(request):
-    name = request.valid_data.get('name')
-    avatar = request.valid_data.get('avatar')
-    zone = request.valid_data.get('zone') or '86'
-    phone = request.valid_data.get('phone')
-    password = request.valid_data.get('password')
-    email = request.valid_data.get('email')
-    ttm_sql = request.app.ttm.get_mysql('ttm_sql')
-    member = ttm_sql.query(TtmMember).filter(or_(TtmMember.name == name,
-                                                 TtmMember.phone == phone)).first()
-    if member:
-        raise ApiError(code=ApiCode.NORMAL_ERR, msg='用户已存在')
 
-    item = TtmMember()
+@doc.summary('添加新用户')
+async def add_member(request):
+    uid = request.json.get('userId')
+    name = request.json.get('userName')
+    avatar = request.json.get('avatar')
+    zone = request.json.get('zone') or '86'
+    phone = request.json.get('phonenumber')
+    password = request.json.get('password')
+    email = request.json.get('email')
+    sex = request.json.get('sex',1)
+    remark = request.json.get('remark')
+
+    ttm_sql = request.app.ttm.get_mysql('ttm_sql')
+
+
+    if uid:
+        item =ttm_sql.query(TtmMember).filter(TtmMember.id == uid).first()
+    else:
+        member = ttm_sql.query(TtmMember).filter(or_(TtmMember.name == name,
+                                                     TtmMember.phone == phone)).first()
+        if member:
+            raise ApiError(code=ApiCode.NORMAL_ERR, msg='昵称或手机号已存在')
+        item = TtmMember()
+        ttm_sql.add(item)
     item.name = name
     # item.avatar = 'https://wpimg.wallstcn.com/f778738c-e4f8-4870-b634-56703b4acafe.gif'
     item.avatar = ''
     item.zone = zone
     item.phone = phone
     item.email = email
+    item.sex = sex
+    item.remark = remark
     item.password = bcrypt.hashpw(password.encode(), bcrypt.gensalt())
     item.created_at = item.updated_at = now()
-    ttm_sql.add(item)
     ttm_sql.commit()
 
+    return json({'code': ApiCode.SUCCESS, 'msg': '保存成功'})
+
+
+@doc.summary('修改用户状态')
+async def statu_member(request):
+    uid = request.json.get('userId')
+    status = request.json.get('status',1)
+
+    ttm_sql = request.app.ttm.get_mysql('ttm_sql')
+
+    if uid:
+        item =ttm_sql.query(TtmMember).filter(TtmMember.id == uid).first()
+        if not item:
+            raise ApiError(code=ApiCode.NORMAL_ERR, msg='用户不存在')
+    item.banned = status
+    ttm_sql.commit()
+
+    return json({'code': ApiCode.SUCCESS, 'msg': '保存成功'})
+
+
+@doc.summary('更新密码')
+@doc.consumes(
+    doc.JsonBody({
+        'password'        : doc.String('原密码'),
+        'new_password'    : doc.String('新密码'),
+        'confirm_password': doc.String('确认密码')
+    }), content_type='application/json', location='body', required=True
+)
+async def update_password(request):
+    uid = request.json.get('userId')
+
+    password = request.json.get('password')
+
+    ttm_sql = request.app.ttm.get_mysql('ttm_sql')
+
+
+    user = ttm_sql.query(TtmMember).filter(TtmMember.id == uid).first()
+    # if not bcrypt.checkpw(password.encode(), user.password.encode()):
+    #     raise ApiError(code=ApiCode.NORMAL_ERR, msg='原密码错误')
+    user.password = bcrypt.hashpw(password.encode(), bcrypt.gensalt(10))
+    ttm_sql.commit()
     return json({'code': ApiCode.SUCCESS, 'msg': '保存成功'})
