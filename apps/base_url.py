@@ -197,7 +197,7 @@ async def app_status(request):
                             "hidden": False,
                             "component": "system/dict/index",
                             "meta": {
-                                "title": "字典管理",
+                                "title": "书籍管理",
                                 "icon": "dict",
                                 "noCache": False,
                                 "link": None
@@ -209,7 +209,7 @@ async def app_status(request):
                             "hidden": False,
                             "component": "system/config/index",
                             "meta": {
-                                "title": "参数设置",
+                                "title": "充值记录",
                                 "icon": "edit",
                                 "noCache": False,
                                 "link": None

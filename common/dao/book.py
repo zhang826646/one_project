@@ -15,7 +15,4 @@ class Book(BaseModel):
     book_url = Column(String(200), default='', comment='图书链接')
     cover = Column(String(200), default='', comment='图书封面')
     update_time = Column(Integer, default=0, comment='创建时间')
-
-    created_at = Column(TIMESTAMP(timezone=True), default=func.now(), comment='创建时间')
-    updated_at = Column(TIMESTAMP, nullable=False, server_default=text("CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP"), comment='更新时间')
-
+    delete = Column(Integer, default=0, comment='是否删除')
