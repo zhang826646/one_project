@@ -143,18 +143,18 @@ async def app_status(request):
                                 "link": None
                             }
                         },
-                        # {
-                        #     "name": "Role",
-                        #     "path": "role",
-                        #     "hidden": False,
-                        #     "component": "system/role/index",
-                        #     "meta": {
-                        #         "title": "角色管理",
-                        #         "icon": "peoples",
-                        #         "noCache": False,
-                        #         "link": None
-                        #     }
-                        # },
+                        {
+                            "name": "Role",
+                            "path": "role",
+                            "hidden": False,
+                            "component": "system/role/index",
+                            "meta": {
+                                "title": "商品管理",
+                                "icon": "peoples",
+                                "noCache": False,
+                                "link": None
+                            }
+                        },
                         # {
                         #     "name": "Menu",
                         #     "path": "menu",
@@ -167,18 +167,18 @@ async def app_status(request):
                         #         "link": None
                         #     }
                         # },
-                        # {
-                        #     "name": "Dept",
-                        #     "path": "dept",
-                        #     "hidden": False,
-                        #     "component": "system/dept/index",
-                        #     "meta": {
-                        #         "title": "部门管理",
-                        #         "icon": "tree",
-                        #         "noCache": False,
-                        #         "link": None
-                        #     }
-                        # },
+                        {
+                            "name": "Dept",
+                            "path": "dept",
+                            "hidden": False,
+                            "component": "system/dept/index",
+                            "meta": {
+                                "title": "评论管理",
+                                "icon": "tree",
+                                "noCache": False,
+                                "link": None
+                            }
+                        },
                         {
                             "name": "Post",
                             "path": "post",
@@ -397,18 +397,18 @@ async def app_status(request):
                         }
                     ]
                 },
-                {
-                    "name": "Http://ruoyi.vip",
-                    "path": "http://ruoyi.vip",
-                    "hidden": False,
-                    "component": "Layout",
-                    "meta": {
-                        "title": "若依官网",
-                        "icon": "guide",
-                        "noCache": False,
-                        "link": "http://ruoyi.vip"
-                    }
-                }
+                # {
+                #     "name": "Http://ruoyi.vip",
+                #     "path": "http://ruoyi.vip",
+                #     "hidden": False,
+                #     "component": "Layout",
+                #     "meta": {
+                #         "title": "若依官网",
+                #         "icon": "guide",
+                #         "noCache": False,
+                #         "link": "http://ruoyi.vip"
+                #     }
+                # }
             ]
         }
     )

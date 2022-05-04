@@ -33,6 +33,10 @@ async def book_list(request):
     _type = request.json.get('bookType')
     status = request.json.get('status')
 
+    beginTime = request.json.get('beginTime')
+    endTime = request.json.get('endTime')
+    # cond = and_(cond, PayRecord.created_at.between(int(beginTime), int(endTime)))
+
 
     offset = (page - 1) * limit
     lists = []

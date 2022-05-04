@@ -7,3 +7,4 @@ article_bp.add_route(article.article_list, '/article_list', ['POST'], name='arti
 article_bp.add_route(article.save_article, '/save_article', ['POST'], name='create_article')  #创建文章
 article_bp.add_route(article.article_detali, '/article_detali/<article_id:int>', name='article_detali')  #查看文章
 article_bp.add_route(article.delete_article, '/delete_article', ['POST'],name='delete_post')  #查看文章
+article_bp.add_route(article.comment_list, '/comment_list', ['POST'],name='comment_list')  #查看评论

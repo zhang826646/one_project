@@ -13,7 +13,7 @@ from common.exceptions import ApiError, ApiCode
 from common.libs.comm import total_number, now, to_int, inc_count
 from common.libs.aio import run_sqlalchemy
 from common.helper.validator_helper import validate_params, CharField, IntegerField, ListField, DictField
-from common.dao.circle import CirclePost
+from common.dao.circle import CirclePost,CircleComment
 from common.dao.member import TtmMember
 
 
@@ -41,6 +41,10 @@ async def article_list(request):
     a_id = request.json.get('postCode')
     title = request.json.get('postName')
     status = request.json.get('status')
+
+    beginTime = request.json.get('beginTime')
+    endTime = request.json.get('endTime')
+    # cond = and_(cond, PayRecord.created_at.between(int(beginTime), int(endTime)))
 
 
     offset = (page - 1) * limit
@@ -305,3 +309,65 @@ async def delete_article(request):
 
     ttm_sql.commit()
     return json({'code': ApiCode.SUCCESS, 'msg': '操作成功'})
+
+
+@doc.summary('评论列表')
+async def comment_list(request):
+    page = request.json.get('pageNum', 1)
+    limit = request.json.get('pageSize', 15)
+    a_id = request.json.get('postCode')
+    title = request.json.get('postName')
+    status = request.json.get('status')
+
+    beginTime = request.json.get('beginTime')
+    endTime = request.json.get('endTime')
+    # cond = and_(cond, PayRecord.created_at.between(int(beginTime), int(endTime)))
+
+    offset = (page - 1) * limit
+    lists = []
+
+    ttm_sql = request.app.ttm.get_mysql('ttm_sql')
+
+    cond = True
+
+    if a_id:
+        cond = CirclePost.id == a_id
+    if title:
+        cond = CirclePost.title.like(f'%{title}%')
+    if status:
+        cond = CirclePost.deleted == status
+
+    @run_sqlalchemy()
+    def get_comment_list_data(db_session):
+        return db_session.query(CircleComment, TtmMember, CirclePost) \
+            .outerjoin(TtmMember, TtmMember.id == CircleComment.uid) \
+            .outerjoin(CirclePost, CirclePost.id == CircleComment.post_id) \
+            .filter(cond) \
+            .order_by(CircleComment.created_at.desc()) \
+            .offset(offset).limit(limit) \
+            .all()
+
+    rows = await get_comment_list_data(ttm_sql)
+
+    for row in rows:
+        lists.append({
+            'id'               : row.CircleComment.id,
+            'parent_id'       : row.CircleComment.parent_id,
+            'content'             : row.CircleComment.content,
+            'status'              : row.CircleComment.deleted,
+            'created_at': row.CircleComment.created_at,
+            'user_id'       : row.TtmMember.id,
+            'user_name'   : row.TtmMember.name,
+
+            'title'            : row.CirclePost.title[:16]+'...' if len(row.CirclePost.title) > 16 else row.CirclePost.title ,
+        })
+
+    total = ttm_sql.query(func.count(CircleComment.id)).filter(cond).scalar()
+    data = {
+        'code'        : ApiCode.SUCCESS,
+        'current_page': page,
+        'page_size'   : limit,
+        'total'       : total,
+        'data'        : lists
+    }
+    return json(data)

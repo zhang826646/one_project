@@ -25,6 +25,11 @@ async def member_list(request):
     banned = request.json.get('banned')
     userName = request.json.get('userName')
     phonenumber = request.json.get('phonenumber')
+
+    beginTime = request.json.get('beginTime')
+    endTime = request.json.get('endTime')
+    # cond = and_(cond, PayRecord.created_at.between(int(beginTime), int(endTime)))
+
     status = request.json.get('status')
     offset = (page - 1) * limit
     lists = []
