@@ -76,7 +76,7 @@ async def getPartnerList(request):
     'msg' : doc.String('消息提示'),
 }, content_type='application/json', description='Request True')
 async def getTopMusicList(request):
-    return {}
+    # return {}
     ttm_sql = request.app.ttm.get_mysql('ttm_sql')
     list=[]
     list.append({

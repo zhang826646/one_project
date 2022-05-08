@@ -14,7 +14,9 @@ def authorized():
             login_time = 0
             try:
                 token = request.cookies.get('Ttm-Token')
+
                 token = urllib.parse.unquote(token)
+
 
                 if token:
                     data = decrypt_web_token(token)
@@ -25,7 +27,7 @@ def authorized():
                 if datetime.now().timestamp() - login_time >= 86400*91:
                     raise NotLoginError()
             except CookieError:
-                pass
+                raise NotLoginError()
 
             kwargs['uid'] = uid
             # request['uid'] = uid

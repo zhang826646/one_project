@@ -5,6 +5,7 @@ from .group import group_bp
 from .comm import commp_bp
 from .article import article_bp
 from .pay import pay_bp
+from .book import book_bp
 
 web_blueprint = Blueprint.group(
     member_bp,
@@ -12,5 +13,6 @@ web_blueprint = Blueprint.group(
     commp_bp,
     article_bp,
     pay_bp,
+    book_bp,
     url_prefix='/web',
 )

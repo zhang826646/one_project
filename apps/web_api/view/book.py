@@ -8,6 +8,7 @@ import ujson
 from common.dao.circle import CirclePost,CircleComment
 from common.dao.member import TtmMember
 from common.dao.pay import TtmGoods
+from common.dao.book import Book
 from common.exceptions import ApiError,ApiCode
 from common.libs.aio import run_sqlalchemy
 from common.libs.comm import now
@@ -17,11 +18,11 @@ import urllib.parse
 from common.libs.tokenize_util import encrypt_web_token,decrypt_web_token
 from sanic.response import text
 from common.dao.pay import PayRecord
-from common.dao.book import Book
 import string
 import random
 import os
-from apps.web_api.decorators import authorized
+from common.libs.comm import now, total_number, to_strtime
+
 
 @doc.summary('banner')
 @doc.produces({
@@ -29,34 +30,46 @@ from apps.web_api.decorators import authorized
     'msg' : doc.String('消息提示'),
     'data': {'token': doc.String('Token')}
 }, content_type='application/json', description='Request True')
-async def goods_list(request):
+async def book_list(request):
+
+    page = request.json.get('pageIndex', 1)
+    limit = request.json.get('pageSize', 15)
+    tag = request.json.get('tag')
 
     ttm_sql = request.app.ttm.get_mysql('ttm_sql')
-    # product_id = request.valid_data.get('product_id')  # 商品id
-    # uid = request.valid_data.get('uid')  # 商品id
-    # amount = request.valid_data.get('amount', 1)  # 数量
-    # pay_type = request.valid_data.get('pay_type')  # 支付方式 config.apps.pay.PayType
-    # yop_pay_type = request.valid_data.get('yop_pay_type')
+    offset = (page - 1) * limit
+    cond = Book.delete == 0
 
     @run_sqlalchemy()
-    def get_goods(db_session):
-        return db_session.query(TtmGoods).filter(TtmGoods.on_sale == 1).all()
+    def get_books(db_session):
+        return db_session.query(Book).filter(cond).all()
 
-    goods = await get_goods(ttm_sql)
-    goods_list=[]
-    for row in goods:
+    books = await get_books(ttm_sql)
+    book_list=[]
+    for row in books:
         item = {
             'id': row.id,
-            'name': row.goods_name,
-            'sm_logo': row.sm_logo,
-            'price': row.price,
-            'goods_desc': row.goods_desc,
-            'created_at': row.created_at,
+            'title': row.title,
+            'author': row.author,
+            'publish': row.publish,
+            'booktpye': row.booktpye,
+            'book_url': row.book_url,
+            'cover': row.cover,
+            'update_time': to_strtime(row.update_time),
         }
-        goods_list.append(item)
+        book_list.append(item)
+    total= await total_number(ttm_sql,Book.id,cond)
     return json({
+
         'code': 0,
-        'data': goods_list}
+        "data": {
+            'currentPage': page,
+            'currentPageSize': limit,
+            'rows': book_list,
+            'totalCount': total,
+            'totalPage': total // limit,
+        }
+    }
     )
 
 
@@ -172,35 +185,81 @@ async def alipay_notify(request):
 
     print('支付宝回调成功')
     return text('success')
+    # return {'code':0 ,'msg':'支付宝回调成功'}
 
+    method = request.method
+    if method == 'GET':
+        request_data = request.args
+    else:
+        request_data = request.form
+    params = {}
+    for (key, value) in request_data.items():
+        params[key] = value[0]
+    app_id = request.form.get('app_id')
+    signature = params.pop('sign', None)
+    # try:
+    #     alipay = AliPayProxy('http://8.142.187.110:30001/web/pay/alipay_notify', debug=True)
+    #     if not alipay.verify_sign(app_id, params, signature):
+    #         logger.error(f'app_id:{app_id}')
+    #         logger.error(f'params:{params}')
+    #         logger.error(f'sign:{signature}')
+    #         return text('failure')
+    #     out_trade_no = params.get('out_trade_no')
+    #     trade_status = params.get('trade_status')
+    #     if trade_status != 'TRADE_FINISHED':
+    #         logger.info(f'支付宝回调,out_trade_no:{out_trade_no}, trade_status:{trade_status}')
+    #     if trade_status == 'TRADE_SUCCESS':
+    #         # 交易支付成功
+    #         leisu_www = request.app.leisu.get_mysql('leisu_www')
+    #         leisu_order_alipay = leisu_www.query(LeisuOrderAlipay).filter(
+    #             LeisuOrderAlipay.out_trade_no == out_trade_no).first()
+    #         leisu_order_alipay.status = 1  # 修改订单状态
+    #         leisu_order_alipay.notify_string = ujson.dumps(params)
+    #         transaction = leisu_www.query(LeisuTransaction).filter(
+    #             LeisuTransaction.alipay_order == leisu_order_alipay.id).first()
+    #         transaction_id = transaction.id
+    #         async with await in_lock(request.app, f'transaction:{transaction_id}') as identifier:
+    #             if not identifier:
+    #                 raise TaskExecuteError(msg=f'订单<{transaction_id}>正在处理中')
+    #             transaction.status = 1  # 修改transaction状态
+    #             leisu_www.commit()
+    #         await request.app.leisu.celery.send_task('apps.tasks.pay.complete_transaction', args=(transaction_id,))
+    #         return text('success')
+    #     elif trade_status == 'TRADE_CLOSED':
+    #         # 未付款交易超时关闭，或支付完成后全额退款
+    #         logger.error(f'app_id:{app_id}')
+    #         logger.error(f'params:{params}')
+    #         logger.error(f'sign:{signature}')
+    #         return text('success')
+    #     elif trade_status == 'TRADE_FINISHED':
+    #         # 交易结束
+    #         return text('success')
+    # except Exception as e:
+    #     logger.error(traceback.format_exc())
+    #     return text('failure')
 
-
-@doc.summary('banner')
-@doc.produces({
-    'code': doc.Integer('状态码'),
-    'msg' : doc.String('消息提示'),
-}, content_type='application/json', description='Request True')
-async def pay_book(request):
-    book_id = request.json.get('book_id')
-
-    token = request.cookies.get('Ttm-Token')
-    if not token:
-        raise ApiError(code=200 ,msg='请先登录')
-    token= urllib.parse.unquote(token)
-    user_info = decrypt_web_token(token)
-    uid = user_info.get('uid')
-
-    ttm_sql = request.app.ttm.get_mysql('ttm_sql')
-
-    member=ttm_sql.query(TtmMember).filter(TtmMember.id == uid).first()
-    member.money_nwdbl -= 10
-    ttm_sql.commit()
-
-    book = ttm_sql.query(Book).filter(Book.id == book_id).first()
-    book_url=book.book_url
-
-
-    return json({'code':0,'data':book_url})
+# @doc.summary('banner')
+# @doc.produces({
+#     'code': doc.Integer('状态码'),
+#     'msg' : doc.String('消息提示'),
+# }, content_type='application/json', description='Request True')
+# async def getPartnerList(request):
+#
+#     ttm_sql = request.app.ttm.get_mysql('ttm_sql')
+#     list=[]
+#     list.append({
+#         'id': 1,
+#         'siteDesc': " ",
+#         'siteName': "admin",
+#         'siteUrl': "http://8.142.187.110/admin",
+#         'sort': 5,
+#     })
+#     bannn={"code":0,"data":{"rows":list,"currentPage":1,"totalPage":1,"currentPageSize":10,"totalCount":9}}
+#     # print(bannn)
+#     # banner = ujson.loads(bannn)
+#
+#
+#     return json(bannn)
 
 
 # @doc.summary('获取音乐')
@@ -208,9 +267,24 @@ async def pay_book(request):
 #     'code': doc.Integer('状态码'),
 #     'msg' : doc.String('消息提示'),
 # }, content_type='application/json', description='Request True')
-# async def pay_book(request):
-#
-#
+# async def getTopMusicList(request):
+#     return {}
+#     ttm_sql = request.app.ttm.get_mysql('ttm_sql')
+#     list=[]
+#     list.append({
+#         'converUrl': "https://pic1.zhimg.com/80/v2-9c112818d98c0f812654e6102fbdd143_720w.jpg?source=1940ef5c",
+#         'createOn': "2022-02-13T14:37:54.000+08:00",
+#         'id': 7,
+#         'singer': "",
+#         'sortCode': 0,
+#         'title': "白月光与朱砂痣",
+#         'totalTime': "",
+#         'updateOn': "2022-02-13T14:37:54.000+08:00",
+#         'url': "http://file.miaoleyan.com/file/blog/LU9fxRAmuJRuBcvnEVhs0k91V097kaGw",
+#     })
+#     bannn={"code":0,"data":{"rows":list,"currentPage":1,"totalPage":1,"currentPageSize":10,"totalCount":9}}
+#     # print(bannn)
+#     # banner = ujson.loads(bannn)
 #
 #
 #     return json(bannn)

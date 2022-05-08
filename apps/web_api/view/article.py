@@ -377,7 +377,7 @@ async def saveArticle(request):
     abstractContent = request.json.get('abstractContent')
     articleTags = request.json.get('articleTags')
 
-    categoryName = request.json.get('categoryName')
+    catalog_id = request.json.get('catalog_id',0)
     content = request.json.get('content')
     coverImageList = request.json.get('coverImageList')
     showStyle = request.json.get('showStyle')
@@ -404,8 +404,10 @@ async def saveArticle(request):
     article.catalog_id = 1
     article.title = title
     article.content = content
+    article.catalog_id = catalog_id
     article.attachments = ujson.dumps(coverImageList,ensure_ascii=False)
     article.hidden = status
+    article.tag = articleTags
     article.uid = uid or member_id
     article.created_at =now()
 
