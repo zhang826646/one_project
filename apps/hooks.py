@@ -1,10 +1,17 @@
 
 from sqlalchemy import create_engine, text
 from sqlalchemy.orm import scoped_session, sessionmaker
-# import redis
 import threading
+import aioredis
 import asyncio
 import os
+
+
+from common.libs.retry_redis import RetryRedis
+from aioredis.commands import Redis
+
+import redis
+
 
 
 
@@ -56,5 +63,26 @@ class StartHook:
                 ), scopefunc=scopefunc
             )
             self.mysql_instance[name] = instance
+        return instance
+
+    async def get_redis(self, name, db=0):
+        """
+        获取 aioredis 连接池实例
+        :param name: 配置文件里的Redis配置名
+        :param db: redis db
+        :return: aioredis 连接池实例
+        :rtype: Redis
+        """
+        if self.redis_instance.get(name) is None:
+            self.redis_instance[name] = {}
+        instance = self.redis_instance[name].get(db)
+        if not instance:
+            instance = await aioredis.create_redis_pool(
+                address=self.app.config.redis[name].get('address'),
+                password=self.app.config.redis[name].get('password'),
+                commands_factory=RetryRedis,
+                db=db, minsize=5, maxsize=300, timeout=10, loop=self.loop
+            )
+            self.redis_instance[name][db] = instance
         return instance
 

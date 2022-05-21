@@ -14,6 +14,7 @@ from common.dao.member import TtmMember
 from common.exceptions import ApiError,ApiCode
 from common.libs.aio import run_sqlalchemy
 from common.libs.comm import now,total_number,to_strtime
+from apps.comm.message import create_message
 from apps import mako
 import time
 
@@ -29,13 +30,14 @@ async def getArticleList(request):
     limit = request.json.get('pageSize', 15)
     tag = request.json.get('tag')
     is_me = request.json.get('is_me')
+    search_title = request.json.get('title')
     print(tag)
     ttm_sql = request.app.ttm.get_mysql('ttm_sql')
     offset = (page - 1) * limit
 
-    cond = True
+    cond = CirclePost.deleted == 0
     if tag:
-        cond = CirclePost.tag == tag
+        cond = and_(cond,CirclePost.tag == tag)
     if is_me:
         token = request.cookies.get('Ttm-Token')
         if not token:
@@ -44,7 +46,11 @@ async def getArticleList(request):
         user_info = decrypt_web_token(token)
         uid = user_info.get('uid')
         print(uid,type(uid))
-        cond = CirclePost.uid == uid
+        cond = and_(cond,CirclePost.uid == uid)
+    else:
+        cond = and_(cond, CirclePost.hidden == 0)
+    if search_title:
+        cond = and_(cond, CirclePost.title.like(f'%{search_title}%'))
 
 
     @run_sqlalchemy()
@@ -118,9 +124,10 @@ async def getTagList(request):
     for row in rows:
         list.append({
             'id': row.id,
-            'alia': row.catalog_name,
+            'name': row.catalog_name,
             'color': "#EB6841",
-            'value': row.catalog_name,
+            'value' : row.id,
+            'label' : row.catalog_name,
         })
 
     return json({"code":0,'data': list,})
@@ -216,15 +223,15 @@ async def getArticleDetail(request,article_id):
     @run_sqlalchemy()
     def get_post_data(db_session):
         return db_session.query(CirclePost, TtmMember,CircleCatalog) \
-            .join(TtmMember, CirclePost.uid == TtmMember.id) \
-            .join(CircleCatalog, CirclePost.catalog_id == CircleCatalog.id) \
+            .join(TtmMember, TtmMember.id == CirclePost.uid ) \
+            .join(CircleCatalog,CircleCatalog.id == CirclePost.catalog_id) \
             .filter(CirclePost.id == article_id) \
             .first()
 
     row = await get_post_data(ttm_sql)
     print(row)
     if not row :
-        raise ApiError(code= 0, msg='文章不存在')
+        raise ApiError( msg='文章不存在')
 
     item =  {
         "id": row.CirclePost.id,
@@ -390,6 +397,7 @@ async def saveArticle(request):
     token= urllib.parse.unquote(token)
     user_info = decrypt_web_token(token)
     uid = user_info.get('uid')
+    print(uid)
 
     ttm_sql = request.app.ttm.get_mysql('ttm_sql')
 
@@ -482,9 +490,10 @@ async def addComment(request):
     comment.content = content
     comment.created_at = now()
     ttm_sql.add(comment)
-
+    ttm_sql.flush()
 
     ttm_sql.commit()
 
+    await create_message(request.app, 2, comment.to_uid, comment_id=comment.id)
 
     return json({'code': 0, 'mag':'保存成功'})

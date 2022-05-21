@@ -41,5 +41,14 @@ config = dict(
                 'echo'  : False,
             },
         },
+
+    redis={
+        'ttm_redis': {
+            'address': 'redis://8.142.187.110:6379',
+            'password': 'qxiaolu',
+            'host': '8.142.187.110',
+            'port': 6379
+        },
+    },
 )
 

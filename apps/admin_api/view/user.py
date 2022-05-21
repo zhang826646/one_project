@@ -147,8 +147,23 @@ async def info(request):
 }, content_type='application/json', description='Request True')
 # @route_acl('user_user_info', acl_required=False)
 async def getInfo(request):
-
-    return json({"msg":"操作成功","code":200,"permissions":["*:*:*"],"roles":["admin"],"user":{"searchValue":None,"createBy":"admin","createTime":"2021-09-09 17:25:28","updateBy":None,"updateTime":None,"remark":"管理员","params":{},"userId":1,"deptId":103,"userName":"admin","nickName":"若依","email":"ry@163.com","phonenumber":"15888888888","sex":"1","avatar":"","status":"0","delFlag":"0","loginIp":"61.134.209.47","loginDate":"2022-03-20T18:07:21.000+08:00","dept":{"searchValue":None,"createBy":None,"createTime":None,"updateBy":None,"updateTime":None,"remark":None,"params":{},"deptId":103,"parentId":101,"ancestors":None,"deptName":"研发部门","orderNum":"1","leader":"若依","phone":None,"email":None,"status":"0","delFlag":None,"parentName":None,"children":[]},"roles":[{"searchValue":None,"createBy":None,"createTime":None,"updateBy":None,"updateTime":None,"remark":None,"params":{},"roleId":1,"roleName":"超级管理员","roleKey":"admin","roleSort":"1","dataScope":"1","menuCheckStrictly":False,"deptCheckStrictly":False,"status":"0","delFlag":None,"flag":False,"menuIds":None,"deptIds":None,"admin":True}],"roleIds":None,"postIds":None,"roleId":None,"admin":True}})
+    return json({"msg": "操作成功", "code": 200, "permissions": ["*:*:*"], "roles": ["admin"],
+                 "user": {"searchValue": None, "createBy": "admin", "createTime": "2021-09-09 17:25:28",
+                          "updateBy": None, "updateTime": None, "remark": "管理员", "params": {}, "userId": 1,
+                          "deptId": 103, "userName": "admin", "nickName": "若依", "email": "ry@163.com",
+                          "phonenumber": "15888888888", "sex": "1", "avatar": "", "status": "0", "delFlag": "0",
+                          "loginIp": "61.134.209.47", "loginDate": "2022-03-20T18:07:21.000+08:00",
+                          "dept": {"searchValue": None, "createBy": None, "createTime": None, "updateBy": None,
+                                   "updateTime": None, "remark": None, "params": {}, "deptId": 103, "parentId": 101,
+                                   "ancestors": None, "deptName": "研发部门", "orderNum": "1", "leader": "若依",
+                                   "phone": None, "email": None, "status": "0", "delFlag": None, "parentName": None,
+                                   "children": []}, "roles": [
+                         {"searchValue": None, "createBy": None, "createTime": None, "updateBy": None,
+                          "updateTime": None, "remark": None, "params": {}, "roleId": 1, "roleName": "超级管理员",
+                          "roleKey": "admin", "roleSort": "1", "dataScope": "1", "menuCheckStrictly": False,
+                          "deptCheckStrictly": False, "status": "0", "delFlag": None, "flag": False, "menuIds": None,
+                          "deptIds": None, "admin": True}], "roleIds": None, "postIds": None, "roleId": None,
+                          "admin": True}})
 
 
 

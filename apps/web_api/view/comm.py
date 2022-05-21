@@ -1,5 +1,8 @@
 from sanic_openapi import doc
 from sanic.response import json
+import msgpack
+from common.libs.comm import now,total_number,to_strtime
+from apps.web_api.decorators import authorized
 from apps import mako,render_template
 from typing import Dict, List, Tuple, Union
 from sqlalchemy import and_,or_
@@ -96,3 +99,34 @@ async def getTopMusicList(request):
 
 
     return json(bannn)
+
+
+@doc.summary('获取消息')
+@doc.produces({
+    'code': doc.Integer('状态码'),
+    'msg' : doc.String('消息提示'),
+}, content_type='application/json', description='Request True')
+# @authorized()
+async def message_list(request,uid=1000005):
+    # return {}
+    # uid= 1000005
+    # _tpye = request.json.get('id')
+    ttm_redis = await request.app.ttm.get_redis('ttm_redis')
+
+    rows =await ttm_redis.zrange(f'z:message:{uid}', -100, -1,withscores=True , encoding='utf8')
+    post_id = ''
+    data_list=[]
+    for content,date in rows:
+        if len(co_list := content.split('?')) == 2:
+            post_id = co_list[-1]
+            content= co_list[0]
+        createtime = to_strtime(date)
+        data_list.append({
+            'post_id':post_id,
+            'content':content,
+            'createtime':createtime
+        })
+
+    return json({
+        "code": 0, "data":data_list
+    })
