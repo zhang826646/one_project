@@ -191,16 +191,25 @@ async def pay_book(request):
     uid = user_info.get('uid')
 
     ttm_sql = request.app.ttm.get_mysql('ttm_sql')
+    ttm_redis = await request.app.ttm.get_redis('ttm_redis')
+    ttm_redis = await request.app.ttm.get_redis('ttm_redis')
+    buy_ids = await ttm_redis.zrange(f'z:buy_book:{uid}')
+    if book_id not in buy_ids:
+        member = ttm_sql.query(TtmMember).filter(TtmMember.id == uid).first()
+        if member.money_nwdbl < 10:
+            raise ApiError(msg='金币不足，请先充值金币！')
+        member.money_nwdbl -= 10
+        ttm_sql.commit()
 
-    member=ttm_sql.query(TtmMember).filter(TtmMember.id == uid).first()
-    member.money_nwdbl -= 10
-    ttm_sql.commit()
 
     book = ttm_sql.query(Book).filter(Book.id == book_id).first()
-    book_url=book.book_url
+    item= {
+        'book_url':f'http://cdn.qxiaolu.club/{book.book_url}',
+        'down_url':book.down_url
+    }
+    await ttm_redis.zadd(f'z:buy_book:{uid}', now(), book.id)
 
-
-    return json({'code':0,'data':book_url})
+    return json({'code':0,'data':item})
 
 
 # @doc.summary('获取音乐')

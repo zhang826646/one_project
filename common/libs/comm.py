@@ -87,7 +87,7 @@ async def inc_count(app, name, ttl=60, amount=1, reset_ttl=True):
     :param reset_ttl:
     :return:
     """
-    redis_normal_0 = await app.leisu.get_redis('normal', db=0)
+    redis_normal_0 = await app.ttm.get_redis('normal', db=0)
     pipe = redis_normal_0.pipeline()
     key = f's:counter:{name}'
     pipe.incrby(key, amount)
@@ -112,7 +112,7 @@ async def set_count(app, name, ttl, amount):
     :param amount:
     :return:
     """
-    redis_normal_0 = await app.leisu.get_redis('normal', db=0)
+    redis_normal_0 = await app.ttm.get_redis('normal', db=0)
     key = f's:counter:{name}'
     await redis_normal_0.setex(key, ttl, amount)
 
@@ -124,14 +124,14 @@ async def reset_count(app, name):
     :param name:
     :return:
     """
-    redis_normal_0 = await app.leisu.get_redis('normal', db=0)
+    redis_normal_0 = await app.ttm.get_redis('normal', db=0)
     key = f's:counter:{name}'
     await redis_normal_0.delete(key)
 
 
 async def get_count(app, name):
     key = f's:counter:{name}'
-    redis_normal_0: Redis = await app.leisu.get_redis('normal', db=0)
+    redis_normal_0: Redis = await app.ttm.get_redis('normal', db=0)
     count = await redis_normal_0.get(key, encoding='utf8') or 0
     return int(count)
 
@@ -144,7 +144,7 @@ async def has_count(app, name):
     :return:
     """
     key = "s:counter:%s" % name
-    redis_normal_0 = await app.leisu.get_redis('normal', db=0)
+    redis_normal_0 = await app.ttm.get_redis('normal', db=0)
     return await redis_normal_0.exists(key)
 
 
@@ -202,7 +202,7 @@ def clear_cookie(response, name):
     response.cookies[name] = ''
     response.cookies[name]['path'] = '/'
     response.cookies[name]['max-age'] = 0
-    response.cookies[name]['domain'] = '.leisu.com'
+    response.cookies[name]['domain'] = '.ttm.com'
     response.cookies[name]['httponly'] = True
     response.cookies[name]['secure'] = True
     response.cookies[name]['samesite'] = None

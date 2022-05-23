@@ -1,19 +1,10 @@
-import re
-import ujson
-import random
-import time
-import lxml.html
-from sanic.exceptions import InvalidUsage
 from sanic.response import json
 from sanic_openapi import doc
 from sqlalchemy import and_, func
-from sqlalchemy.orm import aliased
-from common.exceptions import ApiError, ApiCode
-from common.libs.comm import total_number, now, to_int, inc_count
+from common.exceptions import ApiCode
+from common.libs.comm import now
 from common.libs.aio import run_sqlalchemy
-from common.helper.validator_helper import validate_params, CharField, IntegerField, ListField, DictField
 from common.dao.book import Book
-from common.dao.member import TtmMember
 
 
 @doc.summary('书籍列表')
@@ -166,7 +157,7 @@ async def book_detali(request,id):
 
 
 
-@doc.summary('删除帖子')
+@doc.summary('更新数据')
 async def delete_book(request):
     book_id_list = request.json.get('book_id_list')
     print(book_id_list)
@@ -182,4 +173,13 @@ async def delete_book(request):
         book.delete = 1
 
     ttm_sql.commit()
+    return json({'code': ApiCode.SUCCESS, 'msg': '操作成功'})
+
+
+@doc.summary('删除帖子')
+async def updata_book(request):
+    # await request.app.ttm.celery.send_task('apps.tasks.group.build_follower_list', args=())
+    print(request.app.ttm.celery)
+    print(request.app.celery)
+    await request.app.celery.send_task('apps.tasks.book.book_updata', args=())
     return json({'code': ApiCode.SUCCESS, 'msg': '操作成功'})

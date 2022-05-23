@@ -20,31 +20,9 @@ async def app_status(request):
     return json({
         # 'app_config': request.app.config,
         'app_config': {'qwe':"qqqqqqqq"},
-        # 'app_leisu' : request.app.leisu.status()
         # 'app_router': request.app.router.routes_all,
     })
 
-
-# @doc.summary('APP Debug')
-# @base_bp.route('/debug', strict_slashes=True)
-# async def app_debug(request):
-#     return json({
-#         'cache'          : CACHE_CONTROL_SETTINGS,
-#         'method'         : request.method,
-#         'urls'            : request.urls,
-#         'query_string'   : request.query_string,
-#         'query_args'     : request.query_args,
-#         'form'           : request.form,
-#         'body'           : request.body,
-#         # 'ip'             : get_ipaddr(request),
-#         'request.ip'     : request.ip,
-#         'X-Real-Ip'      : request.headers.get('X-Real-Ip'),
-#         'X-Forwarded-For': request.headers.get('X-Forwarded-For'),
-#         'uri_template'   : request.uri_template,
-#         'endpoint'       : request.endpoint,
-#         'headers'        : dict([(k, v) for k, v in request.headers.items()]),
-#         'cookies'        : request.cookies,
-#     }, status=200, headers={'X-Served-By': 'LeiSu'})
 
 
 @doc.summary('HTTP测试接口')
@@ -86,30 +64,6 @@ async def aes(request):
             'now': datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         }
 
-#
-# @doc.summary('API凯撒加密测试')
-# @doc.consumes()
-# @doc.produces({
-#     'code': doc.Integer('状态码'),
-#     'msg' : doc.String('消息提示'),
-#     'data': doc.String('返回数据'),
-# })
-# @base_bp.route('/caesar', methods=['GET'], strict_slashes=True)
-# async def caesar(request):
-#     data = caesar_encrypt({
-#         'aoo': 'test中文',
-#         'boo': 1,
-#         'coo': [1, 2, 3],
-#         'urls': request.urls,
-#         'now': datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-#     })
-#     return json({'code': 106, 'data': data, 'msg': ''})
-
-
-@doc.summary('健康检查')
-@base_bp.route('/check_health', strict_slashes=True)
-async def check_health(request):
-    return json(await request.app.leisu.check_health())
 
 
 @doc.summary('七牛云上传token')

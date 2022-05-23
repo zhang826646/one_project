@@ -8,17 +8,18 @@ import random
 import ujson
 from asyncio import CancelledError
 from apps.hooks import StartHook
-# from apps.tasks.celery import celery_app
-# import functools
+from apps.tasks.celery import celery_app
+import functools
 from sanic.response import json, HTTPResponse, StreamingHTTPResponse
 from common.libs.comm import obj2dict, inc_count, get_ipaddr
 from sanic.handlers import ErrorHandler
 from sanic.exceptions import NotFound, MethodNotSupported, InvalidUsage
-from common.exceptions import LeisuException, ApiCode, InvalidRequestError, LoginFrequentError, TooFrequentError
+from common.exceptions import Exception, ApiCode, InvalidRequestError, LoginFrequentError, TooFrequentError
 from sanic.request import Request
 # from common.libs.crypto import aes_encrypt, caesar_encrypt
 import traceback
 # from sanic_jinja2 import SanicJinja2
+
 
 
 logger = logging.getLogger('ttm.root')
@@ -59,7 +60,7 @@ class CommonErrorHandler(ErrorHandler):
             return response_format(code=ApiCode.ILLEGAL_REQ, msg='请求体解析错误')
         env = request.app.config.get('env')
 
-        if isinstance(exception, LeisuException):
+        if isinstance(exception, Exception):
             if env != 'prod' or isinstance(exception, (InvalidRequestError, LoginFrequentError)):
                 logger.warning(traceback.format_exc().split('\n')[-4].strip())
                 logger.warning(f'exc: {exception.msg}')
@@ -91,52 +92,53 @@ class BaseRequest(Request):
     def __init__(self, *args, **kwargs):
         super(BaseRequest, self).__init__(*args, **kwargs)
         self.valid_data = {}
-#
-#
-# class CacheBlueprint(Blueprint):
-#
-#     def add_route(
-#         self,
-#         handler,
-#         uri,
-#         methods=frozenset({"GET"}),
-#         host=None,
-#         strict_slashes=None,
-#         version=None,
-#         name=None,
-#         stream=False,
-#         cache_age=None,
-#         caesar=False,
-#         ip_rate_limit=None,
-#         uid_rate_limit=None
-#     ):
-#         if ip_rate_limit:
-#             IP_RATE_LIMIT_SETTINGS[f'{handler.__module__}.{handler.__name__}'] = ip_rate_limit
-#         if uid_rate_limit:
-#             UID_RATE_LIMIT_SETTINGS[f'{handler.__module__}.{handler.__name__}'] = uid_rate_limit
-#         if cache_age:
-#             CACHE_CONTROL_SETTINGS[f'{handler.__module__}.{handler.__name__}'] = cache_age
-#         if caesar:
-#             CAESAR_ROUTES.add(f'{handler.__module__}.{handler.__name__}')
-#         return super(CacheBlueprint, self).add_route(
-#             handler, uri, methods=methods, host=host, strict_slashes=strict_slashes, version=version, name=name, stream=stream)
-#
-#
+
+
+class CacheBlueprint(Blueprint):
+
+    def add_route(
+        self,
+        handler,
+        uri,
+        methods=frozenset({"GET"}),
+        host=None,
+        strict_slashes=None,
+        version=None,
+        name=None,
+        stream=False,
+        cache_age=None,
+        caesar=False,
+        ip_rate_limit=None,
+        uid_rate_limit=None
+    ):
+        if ip_rate_limit:
+            IP_RATE_LIMIT_SETTINGS[f'{handler.__module__}.{handler.__name__}'] = ip_rate_limit
+        if uid_rate_limit:
+            UID_RATE_LIMIT_SETTINGS[f'{handler.__module__}.{handler.__name__}'] = uid_rate_limit
+        if cache_age:
+            CACHE_CONTROL_SETTINGS[f'{handler.__module__}.{handler.__name__}'] = cache_age
+        if caesar:
+            CAESAR_ROUTES.add(f'{handler.__module__}.{handler.__name__}')
+        return super(CacheBlueprint, self).add_route(
+            handler, uri, methods=methods, host=host, strict_slashes=strict_slashes, version=version, name=name, stream=stream)
+
+
 async def before_server_start(_app, _loop):
     logger.info('Sanic APP启动前钩子...')
     _app.ttm = StartHook(_app, _loop)
-    # celery_app.conf.update(_app.config)
-    # _app.leisu.celery = celery_app
+    celery_app.conf.update(_app.config)
+    _app.celery = celery_app
+
 
 #
 async def after_server_stop(_app, _loop):
     logger.info('Sanic APP关闭后钩子...')
-#     await _app.leisu.server_stop()
-#     _app.leisu.remove_mysql_session()
-#
-#
-# async def response_middleware(request, response):
-#     request.app.leisu.remove_mysql_session()
+    # await _app.ttm.server_stop()
+    # _app.ttm.remove_mysql_session()
+
+
+async def response_middleware(request, response):
+    request.app.ttm.remove_mysql_session()
 
 
 class App(Sanic):
@@ -240,7 +242,7 @@ class App(Sanic):
     #         # -------------------------------------------- #
     #         # Don't run response middleware if response is None
     #         # HACK remove db session
-    #         request.app.leisu.remove_mysql_session()
+    #         request.app..remove_mysql_session()
     #         if response is not None:
     #             try:
     #                 response = await self._run_response_middleware(

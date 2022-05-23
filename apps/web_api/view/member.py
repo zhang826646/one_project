@@ -193,9 +193,10 @@ async def get_detail(request, uid):
     'data': doc.Dictionary()
 }, content_type='application/json', description='Request True')
 @validate_params(
-    CharField(name='name'),
-    IntegerField(name='phone'),
+    CharField(name='name',required=False, allow_empty=False),
+    IntegerField(name='phone',required=False),
     CharField(name='email',required=False, allow_empty=False),
+    CharField(name='avatar',required=False, allow_empty=False),
 )
 @authorized()
 async def up_detail(request,uid):
@@ -219,8 +220,9 @@ async def up_detail(request,uid):
         if email:
             member.email = email
         if avatar:
-            pass
-            # member.avatar = avatar
+            member.avatar = avatar
+        if phone:
+            member.phone = phone
         ttm_sql.commit()
     return json({'code': ApiCode.SUCCESS, 'msg': '保存成功'})
 
@@ -281,7 +283,7 @@ async def getInfo(request):
     data = {
         'uid'       : user.id,
         'name'     : user.name,
-        'avatar': f'https://wpimg.wallstcn.com/f778738c-e4f8-4870-b634-56703b4acafe.gif',
+        'avatar': f'http://cdn.qxiaolu.club/{user.avatar}' if user.avatar else f'https://wpimg.wallstcn.com/f778738c-e4f8-4870-b634-56703b4acafe.gif',
         'email': user.email,
         'phone': user.phone,
         'level': user.level,

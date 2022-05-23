@@ -96,7 +96,7 @@ def upload_img(data, key=None, path=None, bucket_name=QINIU_BUCKET_NAME):
 
 
 @run_on_executor()
-def upload_image(data, key=None, path=None, bucket_name=QINIU_BUCKET_NAME):
+def upload_image(key=None, localfile=None, bucket_name=QINIU_BUCKET_NAME):
     """
     上传图片到七牛服务器，并返回图片宽高及mime type
     :param data: 要上传的本地文件
@@ -109,33 +109,22 @@ def upload_image(data, key=None, path=None, bucket_name=QINIU_BUCKET_NAME):
         # 构建鉴权对象
         q = Auth(QINIU_ACCESS_KEY, QINIU_SECRET_KEY)
 
-        # 上传策略 详细查看官网https://developer.qiniu.com/kodo/manual/1206/put-policy
-        policy = {
-            # 指定上传的目标资源空间 Bucket 和资源键 Key（最大为 750 字节）
-            'scope': '<bucket>:<key>',
-            # 自定义资源名
-            'saveKey': path + '/${year}/${mon}/${day}/$(etag)',
-            # 上传成功后，自定义七牛云最终返回給上传端（在指定 returnUrl 时是携带在跳转路径参数中）的数据
-            'returnBody': '{"key": $(key), "hash": $(etag), "width": $(imageInfo.width), "height": $(imageInfo.height) ,"mime_type":$(mimeType)}',
-            # 限定用户上传的文件类型 image/*表示只允许上传图片类型
-            'mimeLimit': "image/*",
-            # 限定上传文件大小最大值，单位Byte。超过限制上传文件大小的最大值会被判为上传失败，返回 413 状态码
-            'fsizeLimit': 1024 * 1024 * 20
-        }
         # 生成上传token
-        token = q.upload_token(bucket_name,policy=policy)
+        token = q.upload_token(bucket_name,key)
 
         # 生成上传文件名
         if key:
             upload_path = key
-        elif path:
-            upload_path = path + hashlib.md5(data).hexdigest()
+        elif localfile:
+            upload_path = hashlib.md5(localfile).hexdigest()
         else:
             return None
 
-        ret, info = put_data(up_token=token, key=upload_path, data=data)
+        ret, info = put_file(token, upload_path, localfile, version='v2')
+        print("???????",ret,info)
         return ret
     except:
+        print("出错了")
         pass
 
 
@@ -347,19 +336,7 @@ if __name__ == '__main__':
     import asyncio
     import os
 
-    # 删除图片
-    # images = [
-    #     'coupon/card58_inactive.png.png',
-    # ]
-    # for img in images:
-    #     r = asyncio.run(delete(img))
 
-    # 更新现有图片
-    # for f in os.listdir('/opt/app/new/leisu_api/build/tmp/'):
-    #     r = asyncio.run(update_file(f'coupon/{f}', local_pth=f'/opt/app/new/leisu_api/build/tmp/{f}'))
-    #     print(r)
-    #     r = asyncio.run(refresh_file(f'coupon/{f}'))
-    #     print(r)
 
     # 刷新图片
     for f in ['card28.png?imageslim', 'card58.png?imageslim', 'card98.png?imageslim']:
@@ -367,8 +344,8 @@ if __name__ == '__main__':
         print(r)
 
     # 上传图片
-    # for f in os.listdir('/opt/app/new/leisu_api/build/tmp/'):
-    #     with open(f'/opt/app/new/leisu_api/build/tmp/{f}', 'rb') as file:
+    # for f in os.listdir('/opt/app/new/ttmapi/build/tmp/'):
+    #     with open(f'/opt/app/new/ttmapi/build/tmp/{f}', 'rb') as file:
     #         content = file.read()
     #         # r = asyncio.run(upload(content, key=f'images/{f}'))
     #         # r = asyncio.run(upload(content, key=f'user/pendant/{f}'))

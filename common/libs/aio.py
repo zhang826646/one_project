@@ -3,7 +3,7 @@ import functools
 import concurrent.futures
 import logging
 
-logger = logging.getLogger('leisu.root')
+logger = logging.getLogger('ttm.root')
 
 
 # 协程装饰器 Future 对象

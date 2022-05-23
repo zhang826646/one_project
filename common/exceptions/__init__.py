@@ -28,7 +28,7 @@ class ApiCode(object):
     ALERT_PROMPT = 300000
 
 
-class LeisuException(Exception):
+class Exception(Exception):
     msg = '未知错误'
     code = ApiCode.UNKNOWN_ERR
     data = None
@@ -40,7 +40,7 @@ class LeisuException(Exception):
         Exception.__init__(self, self.msg)
 
 
-class AlertPrompt(LeisuException):
+class AlertPrompt(Exception):
     def __init__(self, msg='', submit='确认', cancel=None, image=None, submit_extra=None, cancel_extra=None):
         data = {
             'message': msg
@@ -60,7 +60,7 @@ class AlertPrompt(LeisuException):
         super(AlertPrompt, self).__init__(code=ApiCode.ALERT_PROMPT, msg='', data=data)
 
 
-class TaskExecuteError(LeisuException):
+class TaskExecuteError(Exception):
     def __init__(self, code=ApiCode.NORMAL_ERR, msg='任务执行出错', data=None, silent=False):
         self.silent = silent
         super(TaskExecuteError, self).__init__(code=code, msg=msg, data=data)
@@ -71,28 +71,28 @@ class TaskRepeatError(TaskExecuteError):
     code = ApiCode.NORMAL_ERR
 
 
-class InvalidRequestError(LeisuException):
+class InvalidRequestError(Exception):
     msg = '请求非法'
     code = ApiCode.ILLEGAL_REQ
     data = None
 
 
-class MatchNotFound(LeisuException):
+class MatchNotFound(Exception):
     msg = '没有找到该场比赛'
     code = ApiCode.MATCH_NOT_FOUND
 
 
-class TeamNotFound(LeisuException):
+class TeamNotFound(Exception):
     msg = '没有找到该队伍'
     code = ApiCode.MATCH_NOT_FOUND
 
 
-class CompetitionNotFound(LeisuException):
+class CompetitionNotFound(Exception):
     msg = '没有找到该赛事'
     code = ApiCode.MATCH_NOT_FOUND
 
 
-class ApiError(LeisuException):
+class ApiError(Exception):
     """
     自定义 ApiError
     范例：

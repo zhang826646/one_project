@@ -4,10 +4,11 @@ from sanic_openapi import swagger_blueprint
 import argparse
 import logging.config
 from apps import mako,os
+from celery_pool_asyncio import monkey  # 提供补丁使send_task支持await
 
-parser = argparse.ArgumentParser(description="Start The Leisu APP Server")
+parser = argparse.ArgumentParser(description="Start The TTM APP Server")
 
-parser.add_argument('-app', '--application', default='web_api', dest='app',
+parser.add_argument('-app', '--application', default='all_api', dest='app',
                     help='启动的APP，可选项[all_api|app_api|web_api|web_internal_api|mobile_api|admin_api]', type=str)
 
 parser.add_argument('-env', '--environment', default='dev', dest='env',
@@ -27,7 +28,7 @@ if start_args.app == 'all_api':
 else:
     app = import_module(f'apps.{start_args.app}.app').app
 app.config.update(import_module(f'config.{start_args.env}').config)
-paths=os.path.join(os.path.dirname(os.path.abspath(__file__)), 'templates')
+paths = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'templates')
 mako.init_app(app,pkg_path=paths,context_processors=())
 
 app.config.update({'LOGO': f'\n\n                   api\n        '
@@ -47,7 +48,7 @@ logger = logging.getLogger('ttm.root')
 
 # 注册 Swagger Blueprint
 app.blueprint(swagger_blueprint)
-app.config['API_LICENSE_NAME'] = f'Leisu  【{start_args.app}】'
+app.config['API_LICENSE_NAME'] = f'Ttm  【{start_args.app}】'
 logger.info('注册 Swagger')
 
 # 非生产环境 首页重定向到 Swagger

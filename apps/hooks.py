@@ -6,12 +6,10 @@ import aioredis
 import asyncio
 import os
 
-
 from common.libs.retry_redis import RetryRedis
 from aioredis.commands import Redis
 
 import redis
-
 
 
 

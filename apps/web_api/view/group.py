@@ -272,7 +272,7 @@ async def comment_list(request):
 
     @run_sqlalchemy()
     def get_comment_list_data(db_session):
-        return db_session.query(CircleComment,  TtmMember) \
+        return db_session.query(CircleComment,TtmMember) \
             .outerjoin(TtmMember, TtmMember.id == CircleComment.uid) \
             .filter(search_cond) \
             .order_by(CircleComment.created_at.desc()) \
@@ -288,12 +288,12 @@ async def comment_list(request):
         lists.append({
             'id'         : row.CircleComment.id,
             'uid'        : row.CircleComment.uid,
-            'name'       : row.LeisuMember.name if row.LeisuMember else '',
-            'avatar'     : row.LeisuMember.avatar,
-            'level'      : row.LeisuMember.level if row.LeisuMember else 0,
-            'banned'     : row.LeisuMember.banned if row.LeisuMember else 0,
-            'vip'        : row.LeisuMember.vip_expire_at > now() if row.LeisuMember else False,
-            'extra'      : ujson.loads(row.LeisuMember.extra) if row.LeisuMember and row.LeisuMember.extra else {},
+            'name'       : row.TtmMember.name if row.TtmMember else '',
+            'avatar'     : row.TtmMember.avatar,
+            'level'      : row.TtmMember.level if row.TtmMember else 0,
+            'banned'     : row.TtmMember.banned if row.TtmMember else 0,
+            'vip'        : row.TtmMember.vip_expire_at > now() if row.TtmMember else False,
+            'extra'      : ujson.loads(row.TtmMember.extra) if row.TtmMember and row.TtmMember.extra else {},
             'post_id'    : row.CircleComment.post_id,
             'content'    : row.CircleComment.content,
             'deleted'    : row.CircleComment.deleted,

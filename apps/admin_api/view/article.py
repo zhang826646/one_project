@@ -224,26 +224,6 @@ async def save_article(request):
     ttm_sql.flush()
     ttm_sql.commit()
 
-    # if not article_id:
-    #     redis_normal_5 = await request.app.leisu.get_redis('normal', db=5)
-    #     @run_sqlalchemy()
-    #     def get_total_posts_count(db_session):
-    #         return db_session.query(func.count(CirclePost.id)).filter(CirclePost.uid == uid).scalar()
-    #
-    #     count = await get_total_posts_count(ttm_sql)
-    #     await redis_normal_5.setex(f's:user_counter:group_posts:{uid}', 86400 * 30, count)  # 重新保存用户的发帖数
-    #     await request.app.leisu.celery.send_task('apps.tasks.group.on_group_post_insert', args=(item.id,))  # 帖子创建触发任务
-    # await request.app.leisu.celery.send_task('apps.tasks.group.on_group_post_change', args=(item.id,), kwargs={'delete_file': True})  # 触发帖子更新任务
-    #
-    # user = await get_member_cache(request.app, uid)
-    # # 编辑帖子刷新cdn
-    # if article_id:
-    #     # refresh_url = f'https://app-gateway.leisu.com/v1/app/group/get_post?article_id={article_id}'
-    #     refresh_url_2 = f'https://app-gateway.leisuapi.com/v1/app/group/get_post?article_id={article_id}'
-    #     # await request.app.leisu.celery.send_task('apps.tasks.common.cdn_refresh', args=(refresh_url,), countdown=10)
-    #     await request.app.leisu.celery.send_task('apps.tasks.common.cdn_refresh', args=(refresh_url_2,), countdown=10)
-
-
     return json({'code': ApiCode.SUCCESS, 'msg': '操作成功', 'data': {'id': item.id}})
 
 

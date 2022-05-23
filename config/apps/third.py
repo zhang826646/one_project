@@ -1,9 +1,9 @@
 
 # 七牛云
-QINIU_CDN_DOMAIN = 'https://cdn.leisu.com/'
+QINIU_CDN_DOMAIN = 'http://cdn.qxiaolu.com/'
 QINIU_ACCESS_KEY = '4oPmt-gbFg0aVs6WWly_X17rI_jWx3uGcDbM1T2l'
 QINIU_SECRET_KEY = 'RslOODyhed5pfjlfUH3UAuyz5wAapVT3r4FZMSgB'
-QINIU_BUCKET_NAME = 'ttmimg'
+QINIU_BUCKET_NAME = 'ttm-imaga'
 
 class CDNDir:
     UPLOAD = 'upload/'  # 通用路径（30天过期）

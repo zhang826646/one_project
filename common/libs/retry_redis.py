@@ -8,7 +8,7 @@ EXCEPTIONS = (ConnectionClosedError, PipelineError)
 
 class RetryPipline(Pipeline):
     
-    @backoff.on_exception(backoff.constant, EXCEPTIONS, max_tries=3, logger='leisu.root')
+    @backoff.on_exception(backoff.constant, EXCEPTIONS, max_tries=3, logger='ttm.root')
     async def execute(self, *, return_exceptions=False):
         # AssertionError Pipeline already executed. Create new one.
         return await super(RetryPipline, self).execute(return_exceptions=return_exceptions)
@@ -16,7 +16,7 @@ class RetryPipline(Pipeline):
 
 class RetryRedis(Redis):
 
-    @backoff.on_exception(backoff.constant, EXCEPTIONS, max_tries=3, logger='leisu.root')
+    @backoff.on_exception(backoff.constant, EXCEPTIONS, max_tries=3, logger='ttm.root')
     def execute(self, command, *args, **kwargs):
         return super(RetryRedis, self).execute(command, *args, **kwargs)
 
