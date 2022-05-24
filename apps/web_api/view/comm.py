@@ -106,8 +106,8 @@ async def getTopMusicList(request):
     'code': doc.Integer('状态码'),
     'msg' : doc.String('消息提示'),
 }, content_type='application/json', description='Request True')
-# @authorized()
-async def message_list(request,uid=1000005):
+@authorized()
+async def message_list(request,uid):
     # return {}
     # uid= 1000005
     # _tpye = request.json.get('id')

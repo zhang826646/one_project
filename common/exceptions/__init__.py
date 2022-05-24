@@ -8,7 +8,7 @@ class ApiCode(object):
     VERSION_LOW = 100006  # 版本过低
     ILLEGAL_REQ = 100007  # 请求非法
     TOO_FREQUENT = 100010  # 请求频繁
-    NAMI_API_ERR = 100020  # 纳米OpenAPI错误
+
 
     # 业务错误
     NORMAL_ERR = 200000  # 普通业务错误
@@ -16,11 +16,7 @@ class ApiCode(object):
     NO_PERMISSION = 201001  # 没有权限
     TOKEN_EXPIRED = 201002  # token过期 客户端会踢下线
     ABNORMAL_LOGIN = 201003  # 异常登录
-    NOT_AUTHENTICATED = 201005  # 未实名认证
-    AUTHENTICATING = 201006  # 实名认证中
     SILENCE = 201007  # 用户被禁言或发言中包含屏蔽字
-    EMPTY_RED_PACK = 201008  # 红包被抢完了
-    MATCH_NOT_FOUND = 202000  # 没有找到该场比赛
     REPEAT_ERROR = 202001  # 重复操作错误
     SUSPICIOUS = 202002  # 可疑操作,需要验证是否是机器人
 
@@ -77,20 +73,6 @@ class InvalidRequestError(Exception):
     data = None
 
 
-class MatchNotFound(Exception):
-    msg = '没有找到该场比赛'
-    code = ApiCode.MATCH_NOT_FOUND
-
-
-class TeamNotFound(Exception):
-    msg = '没有找到该队伍'
-    code = ApiCode.MATCH_NOT_FOUND
-
-
-class CompetitionNotFound(Exception):
-    msg = '没有找到该赛事'
-    code = ApiCode.MATCH_NOT_FOUND
-
 
 class ApiError(Exception):
     """
@@ -115,15 +97,6 @@ class NoPermissionError(ApiError):
     msg = '没有权限'
     code = ApiCode.NO_PERMISSION
 
-
-class NoRealNameAuthError(ApiError):
-    msg = '尚未实名认证'
-    code = ApiCode.NOT_AUTHENTICATED
-
-
-class EmptyRedPacketError(ApiError):
-    msg = ''
-    code = ApiCode.EMPTY_RED_PACK
 
 
 class NotLoginError(ApiError):
@@ -159,19 +132,8 @@ class UnknownError(ApiError):
     code = ApiCode.UNKNOWN_ERR
 
 
-class HighRiskError(ApiError):
-    msg = '触发天级流控系统，操作被限制'
-
 
 class InLogoffError(ApiError):
     msg = '此账户正在注销中，操作被限制'
 
 
-class SportApiError(ApiError):
-    msg = '数据API请求错误'
-    code = ApiCode.NAMI_API_ERR
-    data = {}
-
-
-class NAMIRateLimitError(SportApiError):
-    msg = '纳米API请求频率超过限制'

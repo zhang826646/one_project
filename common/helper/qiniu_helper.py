@@ -121,10 +121,9 @@ def upload_image(key=None, localfile=None, bucket_name=QINIU_BUCKET_NAME):
             return None
 
         ret, info = put_file(token, upload_path, localfile, version='v2')
-        print("???????",ret,info)
         return ret
     except:
-        print("出错了")
+        print("上传七牛云出错了")
         pass
 
 

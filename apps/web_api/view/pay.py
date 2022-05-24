@@ -105,7 +105,7 @@ async def order_pay(request):
     ttm_sql.add(payrecord)
     ttm_sql.commit()
 
-    alipay = AliPayProxy('http://8.142.187.110/web/pay/alipay_notify',return_url='http://8.142.187.110/blog/member', debug=True)
+    alipay = AliPayProxy('http://8.142.187.110/web/pay/alipay_notify',return_url='http://www.qxiaolu.club/blog/member', debug=True)
 
     order_string = alipay.page_pay(
         subject='TTM购买金币', body=str(goods.t_gold), out_trade_no=out_trade_no, total_amount=str(goods.price))

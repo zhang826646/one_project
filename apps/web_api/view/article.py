@@ -223,8 +223,8 @@ async def getArticleDetail(request,article_id):
     @run_sqlalchemy()
     def get_post_data(db_session):
         return db_session.query(CirclePost, TtmMember,CircleCatalog) \
-            .join(TtmMember, TtmMember.id == CirclePost.uid ) \
-            .join(CircleCatalog,CircleCatalog.id == CirclePost.catalog_id) \
+            .outerjoin(TtmMember, TtmMember.id == CirclePost.uid ) \
+            .outerjoin(CircleCatalog,CircleCatalog.id == CirclePost.catalog_id) \
             .filter(CirclePost.id == article_id) \
             .first()
 

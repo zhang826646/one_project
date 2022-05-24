@@ -54,7 +54,8 @@ async def book_list(request):
             'author': row.author,
             'publish': row.publish,
             'booktpye': row.booktpye,
-            'book_url': row.book_url,
+            'is_book_url':1 if row.book_url else 0,
+            'is_down_url': 1 if row.down_url else 0,
             'cover': f'http://cdn.qxiaolu.club/{row.cover}' if row.cover else '',
             'update_time': to_strtime(row.update_time),
         }

@@ -176,7 +176,7 @@ async def delete_book(request):
     return json({'code': ApiCode.SUCCESS, 'msg': '操作成功'})
 
 
-@doc.summary('删除帖子')
+@doc.summary('更新图书')
 async def updata_book(request):
     # await request.app.ttm.celery.send_task('apps.tasks.group.build_follower_list', args=())
     print(request.app.ttm.celery)
