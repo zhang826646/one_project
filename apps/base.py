@@ -14,7 +14,7 @@ from sanic.response import json, HTTPResponse, StreamingHTTPResponse
 from common.libs.comm import obj2dict, inc_count, get_ipaddr
 from sanic.handlers import ErrorHandler
 from sanic.exceptions import NotFound, MethodNotSupported, InvalidUsage
-from common.exceptions import Exception, ApiCode, InvalidRequestError, LoginFrequentError, TooFrequentError
+from common.exceptions import TtmException, ApiCode, InvalidRequestError, LoginFrequentError, TooFrequentError
 from sanic.request import Request
 # from common.libs.crypto import aes_encrypt, caesar_encrypt
 import traceback
@@ -60,7 +60,7 @@ class CommonErrorHandler(ErrorHandler):
             return response_format(code=ApiCode.ILLEGAL_REQ, msg='请求体解析错误')
         env = request.app.config.get('env')
 
-        if isinstance(exception, Exception):
+        if isinstance(exception, TtmException):
             if env != 'prod' or isinstance(exception, (InvalidRequestError, LoginFrequentError)):
                 logger.warning(traceback.format_exc().split('\n')[-4].strip())
                 logger.warning(f'exc: {exception.msg}')
@@ -94,33 +94,33 @@ class BaseRequest(Request):
         self.valid_data = {}
 
 
-class CacheBlueprint(Blueprint):
-
-    def add_route(
-        self,
-        handler,
-        uri,
-        methods=frozenset({"GET"}),
-        host=None,
-        strict_slashes=None,
-        version=None,
-        name=None,
-        stream=False,
-        cache_age=None,
-        caesar=False,
-        ip_rate_limit=None,
-        uid_rate_limit=None
-    ):
-        if ip_rate_limit:
-            IP_RATE_LIMIT_SETTINGS[f'{handler.__module__}.{handler.__name__}'] = ip_rate_limit
-        if uid_rate_limit:
-            UID_RATE_LIMIT_SETTINGS[f'{handler.__module__}.{handler.__name__}'] = uid_rate_limit
-        if cache_age:
-            CACHE_CONTROL_SETTINGS[f'{handler.__module__}.{handler.__name__}'] = cache_age
-        if caesar:
-            CAESAR_ROUTES.add(f'{handler.__module__}.{handler.__name__}')
-        return super(CacheBlueprint, self).add_route(
-            handler, uri, methods=methods, host=host, strict_slashes=strict_slashes, version=version, name=name, stream=stream)
+# class CacheBlueprint(Blueprint):
+#
+#     def add_route(
+#         self,
+#         handler,
+#         uri,
+#         methods=frozenset({"GET"}),
+#         host=None,
+#         strict_slashes=None,
+#         version=None,
+#         name=None,
+#         stream=False,
+#         cache_age=None,
+#         caesar=False,
+#         ip_rate_limit=None,
+#         uid_rate_limit=None
+#     ):
+#         if ip_rate_limit:
+#             IP_RATE_LIMIT_SETTINGS[f'{handler.__module__}.{handler.__name__}'] = ip_rate_limit
+#         if uid_rate_limit:
+#             UID_RATE_LIMIT_SETTINGS[f'{handler.__module__}.{handler.__name__}'] = uid_rate_limit
+#         if cache_age:
+#             CACHE_CONTROL_SETTINGS[f'{handler.__module__}.{handler.__name__}'] = cache_age
+#         if caesar:
+#             CAESAR_ROUTES.add(f'{handler.__module__}.{handler.__name__}')
+#         return super(CacheBlueprint, self).add_route(
+#             handler, uri, methods=methods, host=host, strict_slashes=strict_slashes, version=version, name=name, stream=stream)
 
 
 async def before_server_start(_app, _loop):
