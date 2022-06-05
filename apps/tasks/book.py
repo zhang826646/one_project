@@ -38,7 +38,7 @@ async def book_updata(self: BaseTask,file_id=None ):
             .first()
 
     for i in file_list[:100]:
-        if i.size > 1024 * 1024 * 100:
+        if i.size > 1024 * 1024 * 70:
             print(f'{i.name}文件{i.size // 1024 // 1024}M，跳过文件')
             continue
         print(f'{i.name} 文件{i.size // 1024 // 1024}M，开始处理文件')

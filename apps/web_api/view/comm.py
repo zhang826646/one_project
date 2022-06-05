@@ -31,14 +31,14 @@ async def getBannerList(request):
         'author': "",
         'createOn': "2022-02-23",
         'id': 12,
-        'imgSrc': "http://file.miaoleyan.com/file/blog/UbQAfXZBobKC9c3rnKV8bO5lQDkzetTE",
+        'imgSrc': "http://cdn.qxiaolu.club/banner/banner1.jpg",
         'isDeleted': 0,
         'isShow': "",
         'linkUrl': "",
         'serialNumber': 1,
         'sortCode': "",
         'subTitle': "",
-        'title': "温暖🍁",
+        'title': "TTM🍁",
         'updateOn': "2022-02-23",
     })
     bannn={"code":0,"data":{"rows":list,"currentPage":1,"totalPage":1,"currentPageSize":10,"totalCount":9}}

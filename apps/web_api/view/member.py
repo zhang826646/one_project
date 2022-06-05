@@ -186,6 +186,7 @@ async def get_detail(request, uid):
     }
     return json(item)
 
+
 @doc.summary('修改账号信息')
 @doc.produces({
     'code': doc.Integer('状态码'),
@@ -193,10 +194,10 @@ async def get_detail(request, uid):
     'data': doc.Dictionary()
 }, content_type='application/json', description='Request True')
 @validate_params(
-    CharField(name='name',required=False, allow_empty=False),
-    IntegerField(name='phone',required=False),
-    CharField(name='email',required=False, allow_empty=False),
-    CharField(name='avatar',required=False, allow_empty=False),
+    CharField(name='name', required=False, allow_empty=False),
+    IntegerField(name='phone', required=False),
+    CharField(name='email', required=False, allow_empty=False),
+    CharField(name='avatar', required=False, allow_empty=False),
 )
 @authorized()
 async def up_detail(request,uid):

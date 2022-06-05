@@ -160,7 +160,8 @@ async def add_member(request):
         ttm_sql.add(item)
     item.name = name
     # item.avatar = 'https://wpimg.wallstcn.com/f778738c-e4f8-4870-b634-56703b4acafe.gif'
-    item.avatar = ''
+    if avatar:
+        item.avatar = avatar
     item.zone = zone
     item.phone = phone
     item.email = email
