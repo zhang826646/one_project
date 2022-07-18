@@ -17,3 +17,4 @@ class Book(BaseModel):
     update_time = Column(Integer, default=0, comment='创建时间')
     delete = Column(Integer, default=0, comment='是否删除')
     down_url=Column(String(1024), default='', comment='下载链接')
+    ali_file_id=Column(String(255), default='', comment='阿里盘文件id')

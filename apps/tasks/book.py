@@ -38,7 +38,7 @@ async def book_updata(self: BaseTask,file_id=None ):
             .first()
 
     for i in file_list[:100]:
-        if i.size > 1024 * 1024 * 70:
+        if i.size > 1024 * 1024 * 5:
             print(f'{i.name}文件{i.size // 1024 // 1024}M，跳过文件')
             continue
         print(f'{i.name} 文件{i.size // 1024 // 1024}M，开始处理文件')
@@ -66,7 +66,7 @@ async def book_updata(self: BaseTask,file_id=None ):
             print(f'{book_name} 图片上传完成')
             print(f'{book_name} 文件上传开始')
             book_ret = {}
-            if i.size < 1024 * 1024 * 100:  # 大于100M 不保存七牛
+            if i.size < 1024 * 1024 * 10:  # 大于10M 不保存七牛
                 book_key = f'book/file/{file_name}'
                 book_ret = await upload_image(key=book_key, localfile=file_path)
             print(f'{book_name} 文件上传完成')
@@ -81,6 +81,7 @@ async def book_updata(self: BaseTask,file_id=None ):
                 'cover': image_ret.get('key') if image_ret else '',
                 'update_time': now(),
                 'book_url': book_ret.get('key') if book_ret else '',
+                'ali_file_id':'',
             }
             is_new, columns, row = Book.upsert(
                 ttm_sql, Book.title == item['title'], attrs=item
