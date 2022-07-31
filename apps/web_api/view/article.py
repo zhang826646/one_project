@@ -67,13 +67,25 @@ async def getArticleList(request):
 
     list = []
     for row in rows:
+        wait_comtent=row.CirclePost.content
+        if row.CirclePost.type == 2:
+            src_match = re.search(r'src="([^"]+)"', row.CirclePost.content)
+            coverImageList = [src_match.group(1)]
+            url = re.sub(r'\?.*', '', src_match.group(1))
+            print(src_match.group(1),url)
+            content= wait_comtent.replace(src_match.group(1),'')
+            # content = re.sub(f'{coverImageList}','', wait_comtent)
+            print(content)
+        else:
+            content= wait_comtent[:200]
+            coverImageList=['http://file.miaoleyan.com/file/blog/UbQAfXZBobKC9c3rnKV8bO5lQDkzetTE']
         item={
             'id': row.CirclePost.id,
             'uid':row.CirclePost.uid,
             'title': row.CirclePost.title,
-            'deleted':row.CirclePost.deleted,
-             'hidden':row.CirclePost.hidden,
-            'abstractContent': row.CirclePost.content,
+            'deleted': row.CirclePost.deleted,
+            'hidden': row.CirclePost.hidden,
+            'abstractContent': content,
             'articleTags': row.CirclePost.tag,
             'author': row.TtmMember.name,
             'category': {'id': row.CircleCatalog.id,
@@ -84,7 +96,7 @@ async def getArticleList(request):
                          'parentId': ""},
             'categoryItems': "",
             'content': "",
-            'coverImageList': ['http://file.miaoleyan.com/file/blog/UbQAfXZBobKC9c3rnKV8bO5lQDkzetTE'],
+            'coverImageList': coverImageList,
             'isRecommend': 0,
             'openComment': "",
             'publishTime': to_strtime(row.CirclePost.created_at),

@@ -207,6 +207,8 @@ async def alipay_notify(request):
 }, content_type='application/json', description='Request True')
 @authorized()
 async def is_buybook(request,uid,bid):
+    if not uid:
+        return ApiError(mag='请先登录')
 
     ttm_redis = await request.app.ttm.get_redis('ttm_redis')
     buy_ids = await ttm_redis.zrange(f'z:buy_book:{uid}',encoding='utf8')
