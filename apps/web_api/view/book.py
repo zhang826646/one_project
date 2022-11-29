@@ -1,6 +1,6 @@
 from sanic_openapi import doc
 from sanic.response import json
-from apps import mako,render_template
+# from apps import mako,render_template
 from typing import Dict, List, Tuple, Union
 from sqlalchemy import and_,or_
 from datetime import datetime

@@ -1,6 +1,6 @@
 from sanic_openapi import doc
 from sanic.response import json
-from apps import mako,render_template
+# from apps import mako,render_template
 from typing import Dict, List, Tuple, Union
 from sqlalchemy import and_,or_
 import datetime
@@ -15,7 +15,7 @@ from common.exceptions import ApiError,ApiCode
 from common.libs.aio import run_sqlalchemy
 from common.libs.comm import now,total_number,to_strtime
 from apps.comm.message import create_message
-from apps import mako
+# from apps import mako
 import time
 
 
@@ -31,13 +31,13 @@ async def getArticleList(request):
     tag = request.json.get('tag')
     is_me = request.json.get('is_me')
     search_title = request.json.get('title')
-    print(tag)
+
     ttm_sql = request.app.ttm.get_mysql('ttm_sql')
     offset = (page - 1) * limit
 
     cond = CirclePost.deleted == 0
     if tag:
-        cond = and_(cond,CirclePost.tag == tag)
+        cond = and_(cond,CirclePost.catalog_id == tag)
     if is_me:
         token = request.cookies.get('Ttm-Token')
         if not token:
@@ -67,18 +67,24 @@ async def getArticleList(request):
 
     list = []
     for row in rows:
-        wait_comtent=row.CirclePost.content
+        content=row.CirclePost.content
+        coverImageList = ['http://file.miaoleyan.com/file/blog/UbQAfXZBobKC9c3rnKV8bO5lQDkzetTE']
         if row.CirclePost.type == 2:
-            src_match = re.search(r'src="([^"]+)"', row.CirclePost.content)
-            coverImageList = [src_match.group(1)]
-            url = re.sub(r'\?.*', '', src_match.group(1))
-            print(src_match.group(1),url)
-            content= wait_comtent.replace(src_match.group(1),'')
+            src_match = re.search(r'src="([^"]+)"', content)
+            print(src_match )
+            if src_match:
+                # 首页图片处理
+                coverImageList = [src_match.group(1)]
+                url = re.sub(r'\?.*', '', src_match.group(1))
+                print(src_match.group(1),url)
+                content= content.replace(src_match.group(1),'')
+            # 标签处理
+            re_h = re.compile('</?\w+[^>]*>')  # HTML标签
+            content = re_h.sub('', content)  # 去掉HTML 标签
             # content = re.sub(f'{coverImageList}','', wait_comtent)
-            print(content)
         else:
-            content= wait_comtent[:200]
-            coverImageList=['http://file.miaoleyan.com/file/blog/UbQAfXZBobKC9c3rnKV8bO5lQDkzetTE']
+            content= content[:200]
+
         item={
             'id': row.CirclePost.id,
             'uid':row.CirclePost.uid,
@@ -421,7 +427,7 @@ async def saveArticle(request):
         article =ttm_sql.query(CirclePost).filter(CirclePost.id == article_id).first()
         if not article:
             raise ApiError(code=0,mag='文章不存在')
-    article.catalog_id = 1
+    article.type = 2
     article.title = title
     article.content = content
     article.catalog_id = catalog_id

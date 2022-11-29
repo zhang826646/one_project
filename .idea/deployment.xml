@@ -1,7 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
-  <component name="PublishConfigData" autoUpload="Always" serverName="root@8.142.187.110:22" remoteFilesAllowedToDisappearOnAutoupload="false">
+  <component name="PublishConfigData" autoUpload="Always" serverName="root@159.138.53.41:22" remoteFilesAllowedToDisappearOnAutoupload="false">
     <serverData>
+      <paths name="root@159.138.53.41:22">
+        <serverdata>
+          <mappings>
+            <mapping deploy="/data/one/one_project" local="$PROJECT_DIR$" />
+          </mappings>
+        </serverdata>
+      </paths>
+      <paths name="root@159.138.7.181:22">
+        <serverdata>
+          <mappings>
+            <mapping deploy="/data/one/one_project" local="$PROJECT_DIR$" />
+          </mappings>
+        </serverdata>
+      </paths>
       <paths name="root@192.168.102.47:22">
         <serverdata>
           <mappings>

@@ -3,7 +3,7 @@ from sanic.response import json
 import msgpack
 from common.libs.comm import now,total_number,to_strtime
 from apps.web_api.decorators import authorized
-from apps import mako,render_template
+# from apps import mako,render_template
 from typing import Dict, List, Tuple, Union
 from sqlalchemy import and_,or_
 import datetime
@@ -14,7 +14,7 @@ from common.dao.member import TtmMember
 from common.exceptions import ApiError,ApiCode
 from common.libs.aio import run_sqlalchemy
 from common.libs.comm import now
-from apps import mako
+# from apps import mako
 
 
 @doc.summary('banner')

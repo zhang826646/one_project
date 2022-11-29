@@ -8,7 +8,7 @@ from common.exceptions import ApiError,ApiCode
 from common.libs.tokenize_util import encrypt_web_token,decrypt_web_token
 from common.libs.aio import run_sqlalchemy
 from common.libs.comm import now, total_number, to_strtime
-from apps import mako, render_template
+# from apps import mako, render_template
 from typing import Dict, List, Tuple, Union
 from sqlalchemy import and_, or_
 import bcrypt
@@ -98,6 +98,7 @@ async def login(request):
     CharField(name='email',required=False, allow_empty=False),
 )
 async def register(request):
+    return ApiError(code=ApiCode.NORMAL_ERR, msg='测试阶段,暂不支持注册,可联系管理员！')
     username = request.valid_data.get('username')
     password = request.valid_data.get('password')
     confirm_password = request.valid_data.get('confirm_password')

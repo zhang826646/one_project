@@ -1,6 +1,6 @@
 from sanic_openapi import doc
 from sanic.response import json
-from apps import mako,render_template
+# from apps import mako,render_template
 from typing import Dict, List, Tuple, Union
 from sqlalchemy import and_,or_
 import datetime
@@ -11,7 +11,7 @@ from common.dao.member import TtmMember
 from common.exceptions import ApiError,ApiCode
 from common.libs.aio import run_sqlalchemy
 from common.libs.comm import now
-from apps import mako
+# from apps import mako
 
 
 @doc.summary('主页')
@@ -20,7 +20,7 @@ from apps import mako
     'msg' : doc.String('消息提示'),
     'data': {'token': doc.String('Token')}
 }, content_type='application/json', description='Request True')
-@mako.template('index.html')
+# @mako.template('index.html')
 async def index(request):
 
     ttm_sql = request.app.ttm.get_mysql('ttm_sql')
@@ -48,7 +48,7 @@ async def index(request):
         'post_id': doc.String('文章id'),
     }), content_type='application/json', location='body', required=True
 )
-@mako.template('cir.html')
+# @mako.template('cir.html')
 async def cat_post(request, post_id):
     ttm_sql = request.app.ttm.get_mysql('ttm_sql')
     circle= ttm_sql.query(CirclePost).filter(CirclePost.id == post_id).first()

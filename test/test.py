@@ -1,12 +1,12 @@
 from sanic import Sanic
 from sanic.response import json
-from sanic_mako import SanicMako,render_template,render_template_def ,os,get_root_path
+# from sanic_mako import SanicMako,render_template,render_template_def ,os,get_root_path
 
 
 app = Sanic('nnq')
 
 psths=os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'templates')
-mako = SanicMako(app,pkg_path=psths)
+# mako = SanicMako(app,pkg_path=psths)
 
 paths = [os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'templates')]
 
@@ -18,7 +18,7 @@ paths = [os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))
 # mako.init_app(app)
 
 @app.route('/index')
-@mako.template('base.html')  # decorator method is staticmethod
+# @mako.template('base.html')  # decorator method is staticmethod
 async def index(request):
     print(os.path.abspath(__file__))
     print(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))

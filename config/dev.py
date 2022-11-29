@@ -65,7 +65,7 @@ config = dict(
     },
     mysql={
             'ttm_sql': {
-                'engine': 'mysql+pymysql://ll:Ll123???@8.142.187.110:3306/TTM?charset=utf8mb4',
+                'engine': 'mysql+pymysql://root:Ll123???@159.138.53.41:3306/ttm?charset=utf8mb4',
                 'echo'  : False,
             },
         },

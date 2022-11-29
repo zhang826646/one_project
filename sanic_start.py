@@ -3,8 +3,9 @@ from importlib import import_module
 from sanic_openapi import swagger_blueprint
 import argparse
 import logging.config
-from apps import mako,os
-from celery_pool_asyncio import monkey  # 提供补丁使send_task支持await
+import os
+# from apps import mako,os
+# from celery_pool_asyncio import monkey  # 提供补丁使send_task支持await
 
 parser = argparse.ArgumentParser(description="Start The TTM APP Server")
 
@@ -29,7 +30,7 @@ else:
     app = import_module(f'apps.{start_args.app}.app').app
 app.config.update(import_module(f'config.{start_args.env}').config)
 paths = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'templates')
-mako.init_app(app,pkg_path=paths,context_processors=())
+# mako.init_app(app,pkg_path=paths,context_processors=())
 
 app.config.update({'LOGO': f'\n\n                   api\n        '
                            f' APP:<<{start_args.app}>>  ENV:<<{start_args.env}>>\n'

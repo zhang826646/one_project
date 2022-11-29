@@ -36,14 +36,15 @@ from common.dao.member import TtmMember
     CharField(name='search_keyword', required=False),
 )
 async def article_list(request):
-    page = request.json.get('pageNum', 1)
-    limit = request.json.get('pageSize', 15)
-    a_id = request.json.get('postCode')
-    title = request.json.get('postName')
-    status = request.json.get('status')
+    print(request.__dict__)
+    page = request.valid_data.get('pageNum', 1)
+    limit = request.valid_data.get('pageSize', 15)
+    a_id = request.valid_data.get('postCode')
+    title = request.valid_data.get('postName')
+    status = request.valid_data.get('status')
 
-    beginTime = request.json.get('beginTime')
-    endTime = request.json.get('endTime')
+    beginTime = request.valid_data.get('beginTime')
+    endTime = request.valid_data.get('endTime')
     # cond = and_(cond, PayRecord.created_at.between(int(beginTime), int(endTime)))
 
 
