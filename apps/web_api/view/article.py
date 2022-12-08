@@ -119,7 +119,7 @@ async def getArticleList(request):
             'currentPageSize': limit,
             'rows': list,
             'totalCount': totalCount,
-            'totalPage': totalCount//totalCount
+            'totalPage': totalCount//limit + 1
         }
     })
 
