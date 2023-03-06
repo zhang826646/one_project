@@ -25,8 +25,8 @@ config = dict(
     task_soft_time_limit=600,
     task_default_rate_limit='1500/m',
     # CELERY_DEFAULT_QUEUE='dev_celery',
-    broker_url='redis://:qxiaolu@8.142.187.110:6379/15',  # 使用Redis作为消息代理
-    result_backend='redis://:qxiaolu@8.142.187.110:6379/15',  # 把任务结果存在了Redis
+    broker_url='redis://:Zz123!%40%23@159.138.53.41:6379/15',  # 使用Redis作为消息代理
+    result_backend='redis://:Zz123!%40%23@159.138.53.41:6379/15',  # 把任务结果存在了Redis
     # BROKER_URL='redis://:qxiaolu@localhost:6379/15',  # 使用Redis作为消息代理
     # CELERY_RESULT_BACKEND='redis://:qxiaolu@localhost:6379/15',  # 把任务结果存在了Redis
     # # CELERY_TASK_SERIALIZER = 'msgpack' # 任务序列化和反序列化使用msgpack方案
@@ -72,9 +72,9 @@ config = dict(
 
     redis={
         'ttm_redis': {
-            'address': 'redis://8.142.187.110:6379',
-            'password': 'qxiaolu',
-            'host': '8.142.187.110',
+            'address': 'redis://159.138.53.41:6379',
+            'password': 'Zz123!@#',
+            'host': '159.138.53.41',
             'port': 6379
         },
     },

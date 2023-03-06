@@ -9,6 +9,13 @@
           </mappings>
         </serverdata>
       </paths>
+      <paths name="root@159.138.53.41:22 (1)">
+        <serverdata>
+          <mappings>
+            <mapping deploy="/data/one/one_project" local="$PROJECT_DIR$" />
+          </mappings>
+        </serverdata>
+      </paths>
       <paths name="root@159.138.7.181:22">
         <serverdata>
           <mappings>
