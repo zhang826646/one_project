@@ -25,8 +25,8 @@ config = dict(
     task_soft_time_limit=600,
     task_default_rate_limit='1500/m',
     # CELERY_DEFAULT_QUEUE='dev_celery',
-    broker_url='redis://:Zz123!%40%23@159.138.53.41:6379/15',  # 使用Redis作为消息代理
-    result_backend='redis://:Zz123!%40%23@159.138.53.41:6379/15',  # 把任务结果存在了Redis
+    broker_url='redis://:Zz123!%40%23@123.60.24.197:6379/15',  # 使用Redis作为消息代理
+    result_backend='redis://:Zz123!%40%23@123.60.24.197:6379/15',  # 把任务结果存在了Redis
     # BROKER_URL='redis://:qxiaolu@localhost:6379/15',  # 使用Redis作为消息代理
     # CELERY_RESULT_BACKEND='redis://:qxiaolu@localhost:6379/15',  # 把任务结果存在了Redis
     # # CELERY_TASK_SERIALIZER = 'msgpack' # 任务序列化和反序列化使用msgpack方案
@@ -44,8 +44,8 @@ config = dict(
         'disable_existing_loggers': False,
         'loggers': {
             'ttm.root': {
-                'level': 'INFO',
-                'handlers': ['console']
+                'level': 'DEBUG',
+                'handlers': ['console', 'filelog']
             }
         },
         'handlers': {
@@ -53,7 +53,13 @@ config = dict(
                 'class': 'logging.StreamHandler',
                 'formatter': 'generic',
                 'stream': sys.stdout,
-            }
+            },
+            'filelog': {
+                'class': 'logging.FileHandler',
+                'formatter': 'generic',
+                'filename': './log.log',
+            },
+
         },
         'formatters': {
             'generic': {
@@ -65,16 +71,16 @@ config = dict(
     },
     mysql={
             'ttm_sql': {
-                'engine': 'mysql+pymysql://root:Ll123???@159.138.53.41:3306/ttm?charset=utf8mb4',
+                'engine': 'mysql+pymysql://root:root@123.60.24.197:3306/ttm?charset=utf8mb4',
                 'echo'  : False,
             },
         },
 
     redis={
         'ttm_redis': {
-            'address': 'redis://159.138.53.41:6379',
+            'address': 'redis://123.60.24.197:6379',
             'password': 'Zz123!@#',
-            'host': '159.138.53.41',
+            'host': '123.60.24.197',
             'port': 6379
         },
     },

@@ -26,7 +26,8 @@ async def app_status(request):
 @doc.summary('测试')
 @base_bp.route('/test', strict_slashes=True)
 async def test(request):
-    await request.app.celery.send_task('apps.tasks.word.word_updata', args=())
+    await request.app.celery.send_task('apps.tasks.post.fix_post', args=())
+    # await request.app.celery.send_task('apps.tasks.word.word_updata', args=())
     return json({'code': ApiCode.SUCCESS, 'msg': '操作成功'})
 
 

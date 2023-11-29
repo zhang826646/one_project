@@ -1,29 +1,19 @@
 from sanic import Sanic
 from sanic.response import json
-# from sanic_mako import SanicMako,render_template,render_template_def ,os,get_root_path
-
+from sanic_mako import SanicMako,render_template,render_template_def
 
 app = Sanic('nnq')
 
-psths=os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'templates')
-# mako = SanicMako(app,pkg_path=psths)
+mako = SanicMako(app)
 
-paths = [os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'templates')]
-
-
-# from templates.config import
 
 # or setup later
 # mako = SanicMako()
 # mako.init_app(app)
 
 @app.route('/index')
-# @mako.template('base.html')  # decorator method is staticmethod
+@mako.template('index.html')  # decorator method is staticmethod
 async def index(request):
-    print(os.path.abspath(__file__))
-    print(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-    print(paths)
-    print(app.name)
     return {'name': 'Hello, sanic!'}
 
 
