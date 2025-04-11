@@ -4,13 +4,14 @@ from importlib import import_module
 from apps.tasks import celery
 from apps.tasks.celery import celery_app
 from celery.utils.imports import instantiate
+from celery.bin import worker
 
 parser = argparse.ArgumentParser(description="Start The TT/m Celery")
 
 parser.add_argument('-env', '--environment', default='dev', dest='env',
                     help='配置文件，可选项[local|dev|prod]', type=str)
 
-parser.add_argument('-a', '--action', default='worker', dest='action',
+parser.add_argument('-a', '--action', default='beat', dest='action',
                     help='Celery动作可选项[worker|beat]', type=str)
 
 parser.add_argument('-q', '--queues', default='', dest='queues',
@@ -19,13 +20,14 @@ parser.add_argument('-q', '--queues', default='', dest='queues',
 parser.add_argument('-p', '--port', default='80', dest='flower_port',
                     help='Flower的端口', type=str)
 
-parser.add_argument('-l', '--level', default='INFO', dest='log_Level',
+parser.add_argument('-l', '--level', default='DEBUG', dest='log_Level',
                     help='日志等级[DEBUG, INFO, WARNING, ERROR]', type=str)
 
 start_args = parser.parse_args()
 
 # 初始化Celery配置文件
-celery_app.conf.update(import_module(f'config.dev').config)
+config = import_module(f'config.{start_args.env}').config
+celery_app.conf.update(config)
 celery_app.config = celery_app.conf  # 兼容Sanic配置文件
 
 if __name__ == '__main__':
@@ -40,3 +42,18 @@ if __name__ == '__main__':
                 '-Q', queues, '-l', start_args.log_Level]
         instantiate('celery.bin.worker:worker', app=celery_app).execute_from_commandline(argv)
 
+    elif start_args.action == 'beat':
+
+        argv = ['beat', '-A', 'apps.tasks', '--max-interval', '5', '--schedule', 'celerybeat-schedule',
+                '-l', start_args.log_Level, '--pidfile', 'celerybeat.pid']
+        instantiate('celery.bin.beat:beat', app=celery_app).execute_from_commandline(argv)
+        # # argv = ['beat', '-A', 'apps.tasks', '--max-interval', '5', '--schedule', 'celerybeat-schedule',
+        # #         '-l', start_args.log_Level, '--pidfile', 'celerybeat.pid']
+        # argv = ['beat',  '--max-interval', '5', '--schedule', 'celerybeat-schedule',
+        #         '-l', start_args.log_Level, '--pidfile', 'celerybeat.pid']
+        # # instantiate('celery.bin.beat:beat', app=celery_app).execute_from_commandline(argv)
+        # # celery_app.worker_main(argv=['beat'])
+        # celery_app.start(argv=argv)
+        # #
+        # # celery_app = celery_app.Beat()
+        # # celery_app.execute_from_commandline(argv)
