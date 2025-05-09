@@ -26,14 +26,14 @@ def add_start_time(sender=None, headers=None, body=None, **kwargs):
     sender.start_time = time.time()
 
 
-@worker_init.connect
-async def db_conn_init(sender=None, headers=None, body=None, **kwargs):
-    print('db_conn_init is running')
+# @worker_init.connect
+# async def db_conn_init(sender=None, headers=None, body=None, **kwargs):
+#     print('db_conn_init is running')
 
 
-@worker_shutting_down.connect
-async def db_conn_shutdown(sender=None, headers=None, body=None, **kwargs):
-    print('db_conn_shutdown is running')
+# @worker_shutting_down.connect
+# async def db_conn_shutdown(sender=None, headers=None, body=None, **kwargs):
+#     print('db_conn_shutdown is running')
 
 
 class MyCelery(Celery):

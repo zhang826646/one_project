@@ -5,7 +5,7 @@ from sqlalchemy import Column, Integer, text, String, SmallInteger, TIMESTAMP, D
 
 # 管理后台用户表
 class User(BaseModel):
-    __tablename__ = 'admin_user'
+    __tablename__ = '_admin_user'
     id = Column(Integer, primary_key=True, comment='用户 ID')
     name = Column(String(200), comment='用户昵称')
     email = Column(String(200), default='', comment='邮箱')

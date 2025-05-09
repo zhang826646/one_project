@@ -68,7 +68,7 @@ async def getArticleList(request):
     list = []
     for row in rows:
         content=row.CirclePost.content
-        coverImageList = ['http://cdn.qxiaolu.club/banner/banner.png']
+        coverImageList = ['http://cdn.iuttm.cn/banner/banner.png']
         if row.CirclePost.type == 2:
             src_match = re.search(r'src="([^"]+)"', content)
             print(src_match )
@@ -261,7 +261,7 @@ async def getArticleDetail(request,article_id):
         "articleTags": row.CirclePost.tag,
         "showStyle": 1,
         "coverImageList": [
-            "http://cdn.qxiaolu.club/banner/baner2.png"],
+            "http://cdn.iuttm.cn/banner/baner2.png"],
         "openComment": 1,
         "isRecommend": 1,
         "author": row.TtmMember.name,

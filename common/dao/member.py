@@ -1,8 +1,11 @@
 from common.dao.base import BaseModel
 from sqlalchemy import Column, Integer, text, String, SmallInteger, TIMESTAMP, DECIMAL, Text, Date
 from common.libs.comm import now
+from sqlalchemy.schema import CreateTable
+from sqlalchemy import create_engine
 
-
+# 连接到MySQL数据库（需要安装pymysql驱动）
+# db = create_engine('mysql+pymysql://root:root@123.60.24.197:3306/ttm?charset=utf8mb4')
 class TtmMember(BaseModel):
     __tablename__ = '_ttm_members'
 
@@ -12,7 +15,7 @@ class TtmMember(BaseModel):
     email = Column(String(255), default='', comment='邮箱')
     zone = Column(String(50), default='', comment='区号')
     phone = Column(String(50), comment='手机号')
-    password = Column(String(50), default='', comment='密码')
+    password = Column(String(64), default='', comment='密码')
     banned = Column(SmallInteger(), default=0, comment='封禁 [0:正常|1:封禁]')
     credit = Column(Integer, default=0, comment='积分')
     level = Column(SmallInteger, default=1, comment='等级')
@@ -26,6 +29,9 @@ class TtmMember(BaseModel):
     remark = Column(String(255), default='', comment='简介')
 
 
+
+
+# print(CreateTable(TtmMember.__table__))
 
 
 

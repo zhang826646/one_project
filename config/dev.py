@@ -1,5 +1,5 @@
 import sys
-
+from apps.tasks import schedule
 
 config = dict(
     # Swagger
@@ -22,11 +22,16 @@ config = dict(
     timezone='Asia/Shanghai',
     enable_utc=False,
     imports=['apps.tasks', 'apps.tasks.celery'],
+    # CELERY_IMPORTS=(
+    #     'apps.tasks',
+    # ),
+    beat_schedule=schedule.dev_beat_schedule,
     task_soft_time_limit=600,
     task_default_rate_limit='1500/m',
+    worker_pool_restarts=True,
     # CELERY_DEFAULT_QUEUE='dev_celery',
-    broker_url='redis://:Zz123!%40%23@123.60.24.197:6379/15',  # 使用Redis作为消息代理
-    result_backend='redis://:Zz123!%40%23@123.60.24.197:6379/15',  # 把任务结果存在了Redis
+    broker_url='redis://:Zz123!%40%23@47.96.225.59:6379/15',  # 使用Redis作为消息代理
+    result_backend='redis://:Zz123!%40%23@47.96.225.59:6379/15',  # 把任务结果存在了Redis
     # BROKER_URL='redis://:qxiaolu@localhost:6379/15',  # 使用Redis作为消息代理
     # CELERY_RESULT_BACKEND='redis://:qxiaolu@localhost:6379/15',  # 把任务结果存在了Redis
     # # CELERY_TASK_SERIALIZER = 'msgpack' # 任务序列化和反序列化使用msgpack方案
@@ -36,6 +41,10 @@ config = dict(
     # CELERY_TIMEZONE='Asia/Shanghai',  # celery使用的时区
     # CELERY_ENABLE_UTC=True,  # 启动时区设置
     # CELERYD_LOG_FILE="/var/log/celery/celery.log",  # celery日志存储位置
+
+    # test_dingtalk_url='https://oapi.dingtalk.com/robot/send?access_token=6bf3cd6f13237663c9d90e66c40351b9e389782a52bf026d83eaffd0a4f3b958',
+    test_dingtalk_url='https://oapi.dingtalk.com/robot/send?access_token=2326140447599c254005800a3902bc5d081c1ef005897fc41598d89e26796b9e',
+    # test_dingtalk_url='https://oapi.dingtalk.com/robot/send?access_token=c792f8d8b3c321e405501ff2dba3b68eb15634f8562342966ca8c7a494542fac',
 
 
     # 全局自定义日志配置
@@ -71,16 +80,16 @@ config = dict(
     },
     mysql={
             'ttm_sql': {
-                'engine': 'mysql+pymysql://root:root@123.60.24.197:3306/ttm?charset=utf8mb4',
+                'engine': 'mysql+pymysql://root:zhang826646@47.96.225.59:3306/ttm?charset=utf8mb4',
                 'echo'  : False,
             },
         },
 
     redis={
         'ttm_redis': {
-            'address': 'redis://123.60.24.197:6379',
+            'address': 'redis://47.96.225.59:6379',
             'password': 'Zz123!@#',
-            'host': '123.60.24.197',
+            'host': '47.96.225.59',
             'port': 6379
         },
     },

@@ -31,7 +31,7 @@ async def getBannerList(request):
         'author': "",
         'createOn': "2022-02-23",
         'id': 12,
-        'imgSrc': "http://cdn.qxiaolu.club/banner/banner1.jpg",
+        'imgSrc': "http://cdn.iuttm.cn/banner/banner1.jpg",
         'isDeleted': 0,
         'isShow': "",
         'linkUrl': "",
@@ -39,7 +39,7 @@ async def getBannerList(request):
         'sortCode': "",
         'subTitle': "",
         'title': "TTM🍁",
-        'updateOn': "2022-02-23",
+        'updateOn': "2024-01-04",
     })
     bannn={"code":0,"data":{"rows":list,"currentPage":1,"totalPage":1,"currentPageSize":10,"totalCount":9}}
     # print(bannn)

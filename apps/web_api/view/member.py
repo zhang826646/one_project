@@ -285,7 +285,7 @@ async def getInfo(request):
     data = {
         'uid'       : user.id,
         'name'     : user.name,
-        'avatar': f'http://cdn.qxiaolu.club/{user.avatar}' if user.avatar else f'https://wpimg.wallstcn.com/f778738c-e4f8-4870-b634-56703b4acafe.gif',
+        'avatar': f'http://cdn.iuttm.cn/{user.avatar}' if user.avatar else f'https://wpimg.wallstcn.com/f778738c-e4f8-4870-b634-56703b4acafe.gif',
         'email': user.email,
         'phone': user.phone,
         'level': user.level,

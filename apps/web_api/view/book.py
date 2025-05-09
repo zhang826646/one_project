@@ -56,7 +56,7 @@ async def book_list(request):
             'booktpye': row.booktpye,
             'is_book_url':1 if row.book_url else 0,
             'is_down_url': 1 if row.down_url else 0,
-            'cover': f'http://cdn.qxiaolu.club/{row.cover}' if row.cover else '',
+            'cover': f'http://cdn.iuttm.cn/{row.cover}' if row.cover else '',
             'update_time': to_strtime(row.update_time),
         }
         book_list.append(item)

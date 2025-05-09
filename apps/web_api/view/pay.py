@@ -105,7 +105,7 @@ async def order_pay(request):
     ttm_sql.add(payrecord)
     ttm_sql.commit()
 
-    alipay = AliPayProxy('http://8.142.187.110/web/pay/alipay_notify',return_url='http://www.qxiaolu.club/blog/member', debug=True)
+    alipay = AliPayProxy('http://123.60.24.197/web/pay/alipay_notify',return_url='http://www.iuttm.cn/blog/member', debug=True)
 
     order_string = alipay.page_pay(
         subject='TTM购买金币', body=str(goods.t_gold), out_trade_no=out_trade_no, total_amount=str(goods.price))
@@ -204,7 +204,7 @@ async def pay_book(request):
 
     book = ttm_sql.query(Book).filter(Book.id == book_id).first()
     item= {
-        'book_url':f'http://cdn.qxiaolu.club/{book.book_url}',
+        'book_url':f'http://cdn.iuttem.cn/{book.book_url}',
         'down_url':book.down_url
     }
     await ttm_redis.zadd(f'z:buy_book:{uid}', now(), book.id)

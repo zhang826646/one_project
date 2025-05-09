@@ -127,7 +127,7 @@ async def before_server_start(_app, _loop):
     logger.info('Sanic APP启动前钩子...')
     _app.ttm = StartHook(_app, _loop)
     celery_app.conf.update(_app.config)
-    _app.celery = celery_app
+    _app.ttm.celery = celery_app
 
 
 #

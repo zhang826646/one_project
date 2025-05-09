@@ -26,10 +26,40 @@ async def app_status(request):
 @doc.summary('测试')
 @base_bp.route('/test', strict_slashes=True)
 async def test(request):
-    await request.app.celery.send_task('apps.tasks.post.fix_post', args=())
+    # from apps.tasks.ok import time_up
+    # from apps.tasks.ok_sjz import time_up as time_sjz
+    # await time_up()
+    # await time_sjz()
+    from core.task import TaskManager
+    # await request.app.celery.send_task('apps.tasks.ok.update_execl', args=())
+    # await request.app.celery.send_task('apps.tasks.ok.buil_billiards_list', args=())
+    # await request.app.celery.send_task('apps.tasks.ok_sjz.buil_billiards_list', args=())
+    # await request.app.celery.send_task('apps.tasks.ok_sjz.w_billiards_list', args=())
+    # request.app.ttm.celery.send_task('apps.tasks.ok.time_up', args=())
     # await request.app.celery.send_task('apps.tasks.word.word_updata', args=())
-    return json({'code': ApiCode.SUCCESS, 'msg': '操作成功'})
+    # print(request.app.ttm.celery)
+    # print(request.app.celery)
+    # from common.helper import dingtalk_helper
+    # dingtalk_url = request.app.config.get('test_dingtalk_url')
+    # await TaskManager.send_task(request.app, 'apps.tasks.dandan.send_deepseek', args=('申丹丹:你知道我是谁吗',))
+    # await TaskManager.send_task(request.app, 'apps.tasks.dandan.send_deepseek', args=('你嗯什么嗯,嗯能解决问题吗',))
+    title = '小张来啦!'
+    ttm_redis = await request.app.ttm.get_redis('ttm_redis')
+    import msgpack
 
+    content='累'
+    reply='小张：丹丹，听起来你今天很疲惫呢。要不要先喝杯温水休息一下？有时候身体累了，心情也会受影响。等你想聊聊的时候，我随时在这里。谭民看到丹丹这么累，也可以温柔地问问\"今天工作很辛苦吗？需要我帮你按按肩膀吗？\"这样的小关心会让对方感觉很温暖哦。'
+    print(msgpack.packb([{"role": "user", "content": content}, {"role": "assistant", "content": reply}],
+                                       use_bin_type=True))
+    await ttm_redis.zadd('z:deepseek:chat_all', now(),
+                         msgpack.packb([{"role": "user", "content": content}, {"role": "assistant", "content": reply}],
+                                       use_bin_type=True))
+
+    # await dingtalk_helper.send_dingtalk(dingtalk_url, title, '就不散!')  # 发送钉钉通知
+    # from apps.tasks.dandan import send_deepseek
+    #
+    # await send_deepseek('看到了吧, 申丹丹不喜欢你')
+    return json({'code': ApiCode.SUCCESS, 'msg': '操作成功'})
 
 @doc.summary('HTTP测试接口')
 @doc.consumes({
