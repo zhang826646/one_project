@@ -11,5 +11,6 @@ dev_beat_schedule = {
     # 'ok_sjz_up_file': {'task': 'apps.tasks.ok_sjz.update_execl', 'schedule': crontab(minute='10',hour='*/1'), 'args': ()},
     'remind_s': {'task': 'apps.tasks.dandan.remind_s', 'schedule': crontab(minute='*'), 'args': ()},
     'weather_remind': {'task': 'apps.tasks.dandan.weather_remind', 'schedule': crontab(hour='7', minute='0'), 'args': ()},
+    'tomorrow_remind': {'task': 'apps.tasks.dandan.tomorrow_remind', 'schedule': crontab(hour='21', minute='0'), 'args': ()},
     'night_remind': {'task': 'apps.tasks.dandan.night_remind', 'schedule': crontab(minute='30', hour='22'), 'args': ()},
 }

@@ -41,7 +41,7 @@ async def remind_s(self: BaseTask):
     }
     duty_time = {
         '1': {'7_0': '照看午餐🍱', '11_30': '照看午餐🍱'},
-        '2': {'7_45': '参加教研会, 携带纸笔!🧑‍🎨🧑‍🎨'},
+        '2': {'7_0': '参加教研会, 携带纸笔!🧑‍🎨🧑‍🎨'},
         '3': {'7_0': '照看延时👩‍💼', '15_30': '照看延时👩‍💼', '19_30': '带身份证'},
         '4': {'7_0': '照看午餐🍛', '11_30': '照看午餐🍛'},
         '5': {'7_0': '站岗💂‍', '9_0': '站岗💂‍', '10_10': '站岗💂‍', '11_0': '站岗💂‍', '14_40': '站岗💂‍', '15_40': '站岗💂‍'},
@@ -146,10 +146,10 @@ async def weather_remind(self: BaseTask):
            f"##### 早晨起床后喝一杯水,补充夜间水分流失，促进肠胃蠕动，唤醒新陈代谢。\n" \
            f"##### 接下来播报今日天气: \n" \
            f"###### 城市: 邯郸市丛台区 \n"\
-           f"###### 天气: {data['daily'][0]['textDay']}\n"\
-           f"###### 温度: {data['daily'][0]['tempMin']}°C - {data['daily'][0]['tempMax']}°C\n"\
-           f"###### 湿度: {data['daily'][0]['humidity']}%\n"\
-           f"###### 风速: {data['daily'][0]['windScaleDay']} 级 {data['daily'][0]['windSpeedDay']} m/s\n"\
+           f"###### 🌤️天气: {data['daily'][0]['textDay']}\n"\
+           f"###### 🌡️温度: {data['daily'][0]['tempMin']}°C - {data['daily'][0]['tempMax']}°C\n"\
+           f"###### 🌂湿度: {data['daily'][0]['humidity']}%\n"\
+           f"###### 💨风速: {data['daily'][0]['windScaleDay']} 级 {data['daily'][0]['windSpeedDay']} m/s\n"\
            f"###### 请关注！  [点击查看](https://www.qweather.com/weather/congtai-101091018.html)\n"
     await dingtalk_helper.send_dingtalk(dingtalk_url, title, text)  # 发送钉钉通知
     return {}
@@ -208,10 +208,10 @@ async def tomorrow_remind(self: BaseTask):
            f"##### {_str}\n " \
            f"##### 明天天气:" \
            f"###### 城市: 邯郸市丛台区 \n" \
-           f"###### 天气: {data['daily'][1]['textDay']}\n" \
-           f"###### 温度: {data['daily'][1]['tempMin']}°C - {data['daily'][1]['tempMax']}°C\n" \
-           f"###### 湿度: {data['daily'][1]['humidity']}%\n" \
-           f"###### 风速: {data['daily'][1]['windScaleDay']} 级 {data['daily'][1]['windSpeedDay']} m/s\n" \
+           f"###### 🌤天气: {data['daily'][1]['textDay']}\n" \
+           f"###### 🌡温度: {data['daily'][1]['tempMin']}°C - {data['daily'][1]['tempMax']}°C\n" \
+           f"###### 🌂湿度: {data['daily'][1]['humidity']}%\n" \
+           f"###### 💨风速: {data['daily'][1]['windScaleDay']} 级 {data['daily'][1]['windSpeedDay']} m/s\n" \
            f"###### 请关注！  [点击查看](https://www.qweather.com/weather/congtai-101091018.html)\n"
     await dingtalk_helper.send_dingtalk(dingtalk_url, title, text)  # 发送钉钉通知
 
