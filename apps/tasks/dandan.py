@@ -1,7 +1,8 @@
 from datetime import datetime, timedelta
 import chinese_calendar as calendar
 import time
-
+from zhipuai import ZhipuAI
+from core.task import TaskManager
 from apps.tasks.celery import MyCelery,celery_app, BaseTask
 import os
 import re
@@ -42,7 +43,7 @@ async def remind_s(self: BaseTask):
     duty_time = {
         '1': {'7_0': '照看午餐🍱', '11_30': '照看午餐🍱'},
         '2': {'7_0': '参加教研会, 携带纸笔!🧑‍🎨🧑‍🎨'},
-        '3': {'7_0': '照看延时👩‍💼', '15_30': '照看延时👩‍💼', '19_30': '带身份证'},
+        '3': {'7_0': '照看延时👩‍💼', '15_30': '照看延时👩‍💼'},
         '4': {'7_0': '照看午餐🍛', '11_30': '照看午餐🍛'},
         '5': {'7_0': '站岗💂‍', '9_0': '站岗💂‍', '10_10': '站岗💂‍', '11_0': '站岗💂‍', '14_40': '站岗💂‍', '15_40': '站岗💂‍'},
     }
@@ -88,11 +89,13 @@ async def remind_s(self: BaseTask):
     if calendar.is_workday(date_today) and class_time.get(str(weekday_num+1), {}).get(f'{hour}_{minute}'):
         item = class_time.get(str(weekday_num+1), {}).get(f"{hour}_{minute}", {})
         title = f'申丹丹!要开始上课啦!「{item.get("class")}」({item.get("place")})👩‍🏫👩‍🏫!'
-        text = f"##### 申丹丹!要开始上课啦! \n" \
-               f"###### 班级: 「{item.get('class')}」({item.get('place')})\n" \
-               f"###### 注意: 携带水杯!喝水!\n" \
-               f"###### 请关注！\n"
-        await dingtalk_helper.send_dingtalk(dingtalk_url, title, text)  # 发送钉钉通知
+        # text = f"##### 申丹丹!要开始上课啦! \n" \
+        #        f"###### 班级: 「{item.get('class')}」({item.get('place')})\n" \
+        #        f"###### 注意: 携带水杯!喝水!\n" \
+        #        f"###### 请关注！\n"
+        # await dingtalk_helper.send_dingtalk(dingtalk_url, title, text)  # 发送钉钉通知
+        content = f'该去({item.get("place")}) 「{item.get("class")}」班上课了'
+        await TaskManager.send_task(self.app, 'apps.tasks.dandan.send_zhipu', args=(title, content))
 
     # 看午休
     if calendar.is_workday(date_today) and duty_time.get(str(weekday_num+1), {}).get(f'{hour}_{minute}'):
@@ -107,19 +110,23 @@ async def remind_s(self: BaseTask):
             ex_str = '+ ❌❌不用❌❌照看午休❌❌'
 
         title = f"申丹丹!该「{duty_time.get(str(weekday_num+1), {}).get(f'{hour}_{minute}')}{ex_str}」啦!"
-        text = f"##### 申丹丹!今天要「{duty_time.get(str(weekday_num+1), {}).get(f'{hour}_{minute}')}{ex_str}」! 千万别忘记奥! \n" \
-               f"###### 注意: 吃饱吃饱!\n" \
-               f"###### 请关注！\n"
-        await dingtalk_helper.send_dingtalk(dingtalk_url, title, text)  # 发送钉钉通知
+        # text = f"##### 申丹丹!今天要「{duty_time.get(str(weekday_num+1), {}).get(f'{hour}_{minute}')}{ex_str}」! 千万别忘记奥! \n" \
+        #        f"###### 注意: 吃饱吃饱!\n" \
+        #        f"###### 请关注！\n"
+        # await dingtalk_helper.send_dingtalk(dingtalk_url, title, text)  # 发送钉钉通知
+        content = f'该{duty_time.get(str(weekday_num+1), {}).get(f"{hour}_{minute}")} {ex_str}了'
+        await TaskManager.send_task(self.app, 'apps.tasks.dandan.send_zhipu', args=(title, content))
 
     # 喝水
     if water_time.get(f'{hour}_{minute}'):
 
         title = f'申丹丹!申丹丹!该喝水了🚰🚰🚰!'
-        text = f"##### 申丹丹!申丹丹!该喝水了🥤🥤! \n" \
-               f"###### {hour}: {minute} " + water_time.get(f'{hour}_{minute}') +"\n"\
-               f"###### 请关注！\n"
-        await dingtalk_helper.send_dingtalk(dingtalk_url, title, text)  # 发送钉钉通知
+        # text = f"##### 申丹丹!申丹丹!该喝水了🥤🥤! \n" \
+        #        f"###### {hour}: {minute} " + water_time.get(f'{hour}_{minute}') +"\n"\
+        #        f"###### 请关注！\n"
+        # await dingtalk_helper.send_dingtalk(dingtalk_url, title, text)  # 发送钉钉通知
+        content = f'该休息喝水了'
+        await TaskManager.send_task(self.app, 'apps.tasks.dandan.send_zhipu', args=(title, content))
     return {}
 
 
@@ -172,10 +179,12 @@ async def night_remind(self: BaseTask):
     ]
 
     title = f'申丹丹!晚上好!✨✨'
-    text = f"#### 申丹丹!晚上好! \n" \
-           f"##### 该睡觉啦!\n" \
-           f"##### {random.choice(goodnight_messages)} \n"
-    await dingtalk_helper.send_dingtalk(dingtalk_url, title, text)  # 发送钉钉通知
+    # text = f"#### 申丹丹!晚上好! \n" \
+    #        f"##### 该睡觉啦!\n" \
+    #        f"##### {random.choice(goodnight_messages)} \n"
+    # await dingtalk_helper.send_dingtalk(dingtalk_url, title, text)  # 发送钉钉通知
+    content = f'该睡觉休息啦,并道晚安'
+    await TaskManager.send_task(self.app, 'apps.tasks.dandan.send_zhipu', args=(title, content))
     return {}
 
 
@@ -271,4 +280,26 @@ async def send_deepseek(self: BaseTask, content):
     title = '小张来啦!'
 
     print(reply)
+    await dingtalk_helper.send_dingtalk(dingtalk_url, title, reply)  # 发送钉钉通知
+
+
+@celery_app.task(ignore_result=True,bind=True, time_limit=30)
+async def send_zhipu(self: BaseTask, title, content):
+    """
+    智谱ai提醒
+    :param self:
+    :param content:
+    :return:
+    """
+    dingtalk_url = self.app.conf.get('test_dingtalk_url')
+    api_key = '5ea5f18c89ee43bbbc93658509c96c78.c2q7Vh2zWd3MzRGh'
+    client = ZhipuAI(api_key=api_key)  # 请填写您自己的APIKey
+    response = client.chat.completions.create(
+        model="glm-4-plus",  # 请填写您要调用的模型名称
+        messages=[
+            {"role": "user", "content": f"你是一位生活助手, 现在温柔、有趣的提醒丹丹老师, {content}"},
+        ],
+    )
+
+    reply = response.choices[0].message.content
     await dingtalk_helper.send_dingtalk(dingtalk_url, title, reply)  # 发送钉钉通知
