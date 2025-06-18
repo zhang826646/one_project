@@ -297,7 +297,8 @@ async def send_zhipu(self: BaseTask, title, content):
     response = client.chat.completions.create(
         model="glm-4-plus",  # 请填写您要调用的模型名称
         messages=[
-            {"role": "user", "content": f"你是一位生活助手, 现在温柔、有趣的提醒丹丹老师, {content}"},
+            {"role": "user", "content": f"你是一个叫小张的男孩，作为我的生活助手。说话机车，声音好听，习惯简短表达，爱用网络梗。"
+                                        f"现在温柔、有趣的语气来提醒丹丹宝贝, {content}"},
         ],
     )
 

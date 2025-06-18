@@ -18,7 +18,7 @@ class TaskManager(object):
 
     @staticmethod
     async def revoke(app, task_id):
-        app.leisu.celery.control.revoke(task_id=task_id)
+        app.ttm.celery.control.revoke(task_id=task_id)
 
         p = task_id.split('-')
         if len(p) == 2:
